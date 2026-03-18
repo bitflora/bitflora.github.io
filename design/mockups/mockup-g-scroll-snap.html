@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Scroll Snap</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0F0F0F;
+      --text:     #F0EDE8;
+      --muted:    #888580;
+      --border:   rgba(240, 237, 232, 0.1);
+      --accent:   #E8C86A;
+
+      /* Per-section accent colors */
+      --c0: #E8C86A;  /* hero: gold */
+      --c1: #7EB8F7;  /* about: blue */
+      --c2: #A78BFA;  /* patristics: purple */
+      --c3: #FB923C;  /* galileo: amber */
+      --c4: #E8C86A;  /* taco: gold */
+      --c5: #4ADE80;  /* sisyphus: green */
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /* ── Scroll snap container ── */
+    .snap-container {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+
+    .snap-container::-webkit-scrollbar { display: none; }
+
+    /* ── Each panel snaps to full viewport ── */
+    .panel {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: grid;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Dot nav on right edge ── */
+    .dot-nav {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .dot-nav-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      cursor: pointer;
+    }
+
+    /* Dot */
+    .dot-nav-item::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(240, 237, 232, 0.25);
+      border: 1.5px solid rgba(240, 237, 232, 0.35);
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .dot-nav-item.active::after {
+      background: var(--current-color, #E8C86A);
+      border-color: var(--current-color, #E8C86A);
+      transform: scale(1.4);
+    }
+
+    /* Tooltip label — appears on hover left of the dot */
+    .dot-label {
+      position: absolute;
+      right: 20px;
+      background: rgba(15,15,15,0.9);
+      color: var(--text);
+      font-size: 11px;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(6px);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .dot-nav-item:hover .dot-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ── Section number (subtle, top-right of each panel) ── */
+    .panel-num {
+      position: absolute;
+      top: 32px;
+      right: 60px;
+      font-size: 10px;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      opacity: 0.4;
+    }
+
+    /* ── Panel inner content centering ── */
+    .panel-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px max(48px, 8vw);
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      height: 100%;
+    }
+
+    /* ── Color bar accent — left edge ── */
+    .panel::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--panel-color, #E8C86A);
+      opacity: 0.7;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--panel-color, #E8C86A);
+      flex-shrink: 0;
+    }
+
+    /* ── PANEL 0: Hero ── */
+    #panel-hero {
+      --panel-color: var(--c0);
+      background: var(--bg);
+    }
+
+    .hero-name {
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 0.9;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 440px;
+    }
+
+    .hero-scroll {
+      margin-top: 52px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: system-ui, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      opacity: 0.5;
+    }
+
+    .arrow-down {
+      display: inline-block;
+      animation: bob 1.8s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+
+    /* ── PANEL 1: About ── */
+    #panel-about {
+      --panel-color: var(--c1);
+      background: #111318;
+    }
+
+    .about-text p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      margin-bottom: 1.1em;
+      max-width: 580px;
+      line-height: 1.65;
+    }
+
+    .about-text p:last-child { margin-bottom: 0; }
+
+    /* ── PANEL 2–5: Projects ── */
+    #panel-patristics { --panel-color: var(--c2); background: #100E1A; }
+    #panel-galileo    { --panel-color: var(--c3); background: #161008; }
+    #panel-taco       { --panel-color: var(--c4); background: #020817; }
+    #panel-sisyphus   { --panel-color: var(--c5); background: #071210; }
+
+    .project-panel-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .project-panel-title em {
+      color: var(--panel-color);
+      font-style: normal;
+    }
+
+    .project-tags-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .proj-tag {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .project-panel-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin-bottom: 32px;
+      line-height: 1.65;
+    }
+
+    .panel-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--panel-color);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: opacity 0.15s;
+    }
+
+    .panel-cta:hover { opacity: 0.7; }
+
+    /* ── Taco panel: embed ── */
+    .taco-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      height: 100%;
+    }
+
+    @media (max-width: 700px) {
+      .taco-layout { grid-template-columns: 1fr; }
+    }
+
+    .taco-embed {
+      height: 420px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .taco-embed iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ── Progress indicator at bottom ── */
+    .progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.2s ease;
+      z-index: 400;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Dot nav ── -->
+  <nav class="dot-nav" id="dot-nav">
+    <div class="dot-nav-item active" data-target="panel-hero" style="--current-color: var(--c0)">
+      <span class="dot-label">Home</span>
+    </div>
+    <div class="dot-nav-item" data-target="panel-about" style="--current-color: var(--c1)">
+      <span class="dot-label">About</span>
+    </div>
+    <div class="dot-nav-item" data-target="panel-patristics" style="--current-color: var(--c2)">
+      <span class="dot-label">Patristics</span>
+    </div>
+    <div class="dot-nav-item" data-target="panel-galileo" style="--current-color: var(--c3)">
+      <span class="dot-label">Galileo</span>
+    </div>
+    <div class="dot-nav-item" data-target="panel-taco" style="--current-color: var(--c4)">
+      <span class="dot-label">Taco Tuesday</span>
+    </div>
+    <div class="dot-nav-item" data-target="panel-sisyphus" style="--current-color: var(--c5)">
+      <span class="dot-label">Sisyphus Quest</span>
+    </div>
+  </nav>
+
+  <div class="progress-bar" id="progress-bar"></div>
+
+  <!-- ── Snap container ── -->
+  <div class="snap-container" id="snap-container">
+
+    <!-- Panel 0: Hero -->
+    <div class="panel" id="panel-hero">
+      <div class="panel-num">00 / 05</div>
+      <div class="panel-inner">
+        <div class="section-label">
+          <span class="section-label-dot"></span>
+          Portfolio
+        </div>
+        <h1 class="hero-name">[Your<br>Name]</h1>
+        <p class="hero-sub">Software engineer building at the intersection of history, science, and software.</p>
+        <div class="hero-scroll">
+          <span class="arrow-down">↓</span>
+          Scroll
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 1: About -->
+    <div class="panel" id="panel-about">
+      <div class="panel-num">01 / 05</div>
+      <div class="panel-inner">
+        <div class="section-label">
+          <span class="section-label-dot"></span>
+          About
+        </div>
+        <div class="about-text">
+          <p>[Your bio. A few lines that connect the dots between your eclectic set of projects — why a software engineer is also interested in early church history, Galileo's mechanics, planetary astronomy, and Greek myth.]</p>
+          <p>[What you're working on now, or what's next.]</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Patristics -->
+    <div class="panel" id="panel-patristics">
+      <div class="panel-num">02 / 05</div>
+      <div class="panel-inner">
+        <div class="section-label">
+          <span class="section-label-dot"></span>
+          Project — AI Pipeline
+        </div>
+        <h2 class="project-panel-title">
+          <em>Patristics</em>
+        </h2>
+        <div class="project-tags-row">
+          <span class="proj-tag">AI</span>
+          <span class="proj-tag">Data pipeline</span>
+          <span class="proj-tag">NLP</span>
+        </div>
+        <p class="project-panel-desc">An AI-enabled three-stage data pipeline that parses through almost 400 patristic texts — the writings of the early church fathers — extracting structured information at scale.</p>
+        <a class="panel-cta" href="https://patristics-site.vercel.app/" target="_blank">Visit patristics-site.vercel.app →</a>
+      </div>
+    </div>
+
+    <!-- Panel 3: Galileo -->
+    <div class="panel" id="panel-galileo">
+      <div class="panel-num">03 / 05</div>
+      <div class="panel-inner">
+        <div class="section-label">
+          <span class="section-label-dot"></span>
+          Project — AI · Text
+        </div>
+        <h2 class="project-panel-title">
+          Galileo's Two New<br><em>Sciences</em>, Annotated
+        </h2>
+        <div class="project-tags-row">
+          <span class="proj-tag">AI</span>
+          <span class="proj-tag">Text</span>
+          <span class="proj-tag">History of science</span>
+        </div>
+        <p class="project-panel-desc">An experiment in bringing new life to old texts. AI provides modern mathematical notation, rendered figures, and commentary alongside Galileo's original 1638 work.</p>
+        <a class="panel-cta" href="https://galileo-two-new-sciences.vercel.app/" target="_blank">Visit galileo-two-new-sciences.vercel.app →</a>
+      </div>
+    </div>
+
+    <!-- Panel 4: Taco Tuesday (embed) -->
+    <div class="panel" id="panel-taco">
+      <div class="panel-num">04 / 05</div>
+      <div class="panel-inner" style="max-width: 100%; padding-right: 80px;">
+        <div class="taco-layout">
+          <div>
+            <div class="section-label">
+              <span class="section-label-dot"></span>
+              Project — Rust · Astronomy
+            </div>
+            <h2 class="project-panel-title">Solar<br><em>Taco Tuesday</em></h2>
+            <div class="project-tags-row">
+              <span class="proj-tag">Rust</span>
+              <span class="proj-tag">Astronomy</span>
+              <span class="proj-tag">Interactive</span>
+            </div>
+            <p class="project-panel-desc">Each planet has its own day length. This tracks whether it's currently Taco Tuesday on each of the nine planets — live, in your browser. Hover a planet to see details.</p>
+          </div>
+          <div class="taco-embed">
+            <iframe src="../../../taco-tuesday/index.html" title="Solar Taco Tuesday"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 5: Sisyphus -->
+    <div class="panel" id="panel-sisyphus">
+      <div class="panel-num">05 / 05</div>
+      <div class="panel-inner">
+        <div class="section-label">
+          <span class="section-label-dot"></span>
+          Project — Game · Vue
+        </div>
+        <h2 class="project-panel-title">
+          <em>Sisyphus</em> Quest
+        </h2>
+        <div class="project-tags-row">
+          <span class="proj-tag">Game</span>
+          <span class="proj-tag">Vue</span>
+          <span class="proj-tag">Pixel art</span>
+        </div>
+        <p class="project-panel-desc">You are Sisyphus. Push the rock up the hill. Watch it roll back. A browser game about the eternal, absurd labor — with pixel art, XP, and stats for perseverance.</p>
+        <a class="panel-cta" href="/sisyphus-quest/">Play Sisyphus Quest →</a>
+      </div>
+    </div>
+
+  </div><!-- /snap-container -->
+
+  <script>
+    const container   = document.getElementById('snap-container');
+    const dots        = document.querySelectorAll('.dot-nav-item');
+    const progressBar = document.getElementById('progress-bar');
+    const panels      = Array.from(document.querySelectorAll('.panel'));
+
+    // Dot click → scroll to panel
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        panels[i].scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Update active dot + progress bar on scroll
+    function onScroll() {
+      const total    = container.scrollHeight - container.clientHeight;
+      const progress = container.scrollTop / total;
+      progressBar.style.width = (progress * 100) + '%';
+
+      const mid = container.scrollTop + container.clientHeight / 2;
+      let activeIdx = 0;
+      panels.forEach((p, i) => {
+        if (p.offsetTop <= mid) activeIdx = i;
+      });
+
+      dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
+    }
+
+    container.addEventListener('scroll', onScroll, { passive: true });
+  </script>
+
+</body>
+</html>

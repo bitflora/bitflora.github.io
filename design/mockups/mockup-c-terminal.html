@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Terminal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0D1117;
+      --surface:  #161B22;
+      --border:   #21262D;
+      --text:     #E6EDF3;
+      --muted:    #8B949E;
+      --dim:      #484F58;
+      --green:    #3FB950;
+      --amber:    #D29922;
+      --blue:     #58A6FF;
+      --red:      #F85149;
+      --purple:   #BC8CFF;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Scanline overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.04) 2px,
+        rgba(0,0,0,0.04) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── Top bar ── */
+    .term-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .term-dots { display: flex; gap: 7px; }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .dot-r { background: #FF5F57; }
+    .dot-y { background: #FEBC2E; }
+    .dot-g { background: #28C840; }
+
+    .term-title {
+      color: var(--muted);
+      font-size: 12px;
+      flex: 1;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .term-nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .term-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .term-nav a:hover { color: var(--green); }
+
+    /* ── Page ── */
+    .page-wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 60px 40px 100px;
+    }
+
+    /* ── Prompt prefix ── */
+    .prompt {
+      color: var(--green);
+      user-select: none;
+    }
+
+    .prompt-line {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .prompt-cmd { color: var(--blue); }
+    .prompt-arg { color: var(--amber); }
+
+    /* ── Block ── */
+    .block {
+      margin-bottom: 64px;
+    }
+
+    .block-header {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .block-header h2 {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--dim);
+      font-weight: normal;
+      margin-bottom: 4px;
+    }
+
+    /* ── Hero ── */
+    .hero-ascii {
+      color: var(--green);
+      font-size: 11px;
+      line-height: 1.3;
+      margin-bottom: 24px;
+      opacity: 0.6;
+    }
+
+    .hero-name {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    /* Blinking cursor */
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1.1em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      animation: blink 1.1s step-end infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* ── About ── */
+    .about-text {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .about-text p { margin-bottom: 0.8em; color: var(--muted); }
+    .about-text p:last-child { margin-bottom: 0; }
+
+    /* ── Project list ── */
+    .project-item {
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .project-header {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .project-index { color: var(--dim); font-size: 11px; margin-right: 10px; }
+
+    .project-name { color: var(--blue); font-weight: bold; font-size: 15px; }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border: 1px solid currentColor;
+      border-radius: 3px;
+      letter-spacing: 0.08em;
+    }
+
+    .badge-green { color: var(--green); }
+    .badge-amber { color: var(--amber); }
+    .badge-purple { color: var(--purple); }
+    .badge-red    { color: var(--red); }
+
+    .project-body {
+      padding: 16px;
+    }
+
+    .output-line {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .output-line .key { color: var(--dim); }
+
+    .project-link-line {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .link-arrow { color: var(--green); }
+
+    .project-link {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .project-link:hover {
+      text-decoration: underline;
+      color: var(--text);
+    }
+
+    /* ── Embed ── */
+    .embed-container {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .embed-header {
+      background: var(--border);
+      padding: 6px 14px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .embed-container iframe {
+      display: block;
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+
+    /* ── Footer ── */
+    .term-footer {
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="term-bar">
+    <div class="term-dots">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+    </div>
+    <div class="term-title">portfolio — bash — 80×24</div>
+    <nav class="term-nav">
+      <a href="#about">~/about</a>
+      <a href="#projects">~/projects</a>
+    </nav>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- HERO -->
+    <div class="block" style="margin-bottom: 48px">
+      <pre class="hero-ascii">
+ ___  ___  ___  _____  ___  ___  __   ___  __
+| . \| . \| . \|_   _||  _||  _||  | |_ _|/ /
+|  _/|   /| | |  | |  | _| | _| | |_ | |/ /
+|_|  |_\_\|___|  |_|  |___||___||___||___\_\  </pre>
+
+      <div class="hero-name">[Your Name]<span class="cursor"></span></div>
+      <div class="hero-sub">$ whoami → software engineer, builder of things</div>
+      <div class="prompt-line">
+        <span class="prompt">▶</span>
+        <span><span class="prompt-cmd">cat</span> <span class="prompt-arg">portfolio.md</span></span>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="block" id="about">
+      <div class="block-header">
+        <h2>// about</h2>
+        <div class="prompt-line">
+          <span class="prompt">▶</span>
+          <span><span class="prompt-cmd">./about.sh</span></span>
+        </div>
+      </div>
+      <div class="about-text">
+        <p>[Your bio. What you build, why it interests you, what connects the dots between an AI pipeline for church fathers, annotated Galileo, a planetary taco calculator, and a Sisyphus game. There's a story here — tell it.]</p>
+        <p>[Current focus or what you're working on next.]</p>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="block" id="projects">
+      <div class="block-header">
+        <h2>// projects</h2>
+        <div class="prompt-line">
+          <span class="prompt">▶</span>
+          <span><span class="prompt-cmd">ls</span> <span class="prompt-arg">-la ./projects/</span></span>
+        </div>
+      </div>
+
+      <!-- Patristics -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-index">[01]</span>
+            <span class="project-name">patristics</span>
+          </div>
+          <span class="badge badge-purple">AI · Pipeline</span>
+        </div>
+        <div class="project-body">
+          <div class="output-line"><span class="key">desc&nbsp;&nbsp; </span>AI-enabled three-stage data pipeline. Parses ~400 patristic texts.</div>
+          <div class="output-line"><span class="key">stack&nbsp; </span>Python · LLM · Data pipeline</div>
+          <div class="project-link-line">
+            <span class="link-arrow">→</span>
+            <a class="project-link" href="https://patristics-site.vercel.app/" target="_blank">patristics-site.vercel.app</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Galileo -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-index">[02]</span>
+            <span class="project-name">galileo-two-new-sciences</span>
+          </div>
+          <span class="badge badge-amber">AI · Text</span>
+        </div>
+        <div class="project-body">
+          <div class="output-line"><span class="key">desc&nbsp;&nbsp; </span>Brings new life to old texts — AI adds modern math notation, figures, and commentary.</div>
+          <div class="output-line"><span class="key">stack&nbsp; </span>LLM · Web · Typography</div>
+          <div class="project-link-line">
+            <span class="link-arrow">→</span>
+            <a class="project-link" href="https://galileo-two-new-sciences.vercel.app/" target="_blank">galileo-two-new-sciences.vercel.app</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Taco Tuesday -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-index">[03]</span>
+            <span class="project-name">solar-taco-tuesday</span>
+          </div>
+          <span class="badge badge-red">Rust · Interactive</span>
+        </div>
+        <div class="project-body">
+          <div class="output-line"><span class="key">desc&nbsp;&nbsp; </span>Is it Taco Tuesday on Jupiter right now? Tracks local days across all nine planets.</div>
+          <div class="output-line"><span class="key">stack&nbsp; </span>Rust · WebAssembly · Astronomy</div>
+          <div class="embed-container">
+            <div class="embed-header">▶ RUNNING: solar-taco-tuesday —live</div>
+            <iframe src="../../../taco-tuesday/index.html" title="Solar Taco Tuesday"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sisyphus Quest -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-index">[04]</span>
+            <span class="project-name">sisyphus-quest</span>
+          </div>
+          <span class="badge badge-green">Game · Vue</span>
+        </div>
+        <div class="project-body">
+          <div class="output-line"><span class="key">desc&nbsp;&nbsp; </span>You are Sisyphus. Push the rock. It rolls back. Pixel art browser game with XP.</div>
+          <div class="output-line"><span class="key">stack&nbsp; </span>Vue · TypeScript · Canvas</div>
+          <div class="project-link-line">
+            <span class="link-arrow">→</span>
+            <a class="project-link" href="/sisyphus-quest/">/sisyphus-quest/</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /projects -->
+
+    <footer class="term-footer">
+      <div class="prompt-line">
+        <span class="prompt">▶</span>
+        <span><span class="prompt-cmd">exit</span> <span style="color:var(--dim)">0  # © 2025 [Your Name]</span></span>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

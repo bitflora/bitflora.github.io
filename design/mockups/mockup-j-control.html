@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Control Room</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #060810;
+      --surface:  #0C0F1A;
+      --border:   rgba(0, 200, 255, 0.12);
+      --border-s: rgba(0, 200, 255, 0.06);
+      --text:     #E8EDF8;
+      --muted:    #526070;
+      --dim:      #2A3345;
+      --cyan:     #00C8FF;
+      --cyan-dim: rgba(0, 200, 255, 0.35);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SFMono-Regular', 'Consolas', monospace;
+      font-size: 13px;
+    }
+
+    /* ── Root grid: header + body ── */
+    .root {
+      display: grid;
+      grid-template-rows: 36px 1fr;
+      height: 100vh;
+    }
+
+    /* ── Global header bar ── */
+    .hud-bar {
+      background: rgba(6,8,16,0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 0;
+      justify-content: space-between;
+    }
+
+    .hud-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .hud-ident {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    .hud-sep { color: var(--dim); margin: 0 2px; }
+
+    .hud-stat {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .hud-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hud-clock {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+    }
+
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 5px var(--cyan);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Body: taco panel + right column ── */
+    .body {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      overflow: hidden;
+    }
+
+    /* ── Left: Taco panel ── */
+    .taco-panel {
+      position: relative;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    /* Panel status bar */
+    .panel-bar {
+      height: 28px;
+      background: rgba(0,200,255,0.04);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+
+    .panel-bar-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .panel-bar-label::before {
+      content: '▶';
+      font-size: 7px;
+      opacity: 0.6;
+    }
+
+    .panel-bar-data {
+      display: flex;
+      gap: 18px;
+    }
+
+    .data-item {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .data-item span {
+      color: var(--cyan);
+      opacity: 0.6;
+    }
+
+    .taco-panel iframe {
+      display: block;
+      width: 100%;
+      flex: 1;
+      border: none;
+    }
+
+    /* Elaborate corner reticles */
+    .reticle {
+      position: absolute;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .reticle::before, .reticle::after {
+      content: '';
+      position: absolute;
+      background: var(--cyan);
+      opacity: 0.5;
+    }
+
+    /* Horizontal arm */
+    .reticle::before { width: 18px; height: 1px; }
+    /* Vertical arm */
+    .reticle::after  { width: 1px; height: 18px; }
+
+    .reticle-tl { top: 34px; left: 0; }
+    .reticle-tl::before { top: 0; left: 0; }
+    .reticle-tl::after  { top: 0; left: 0; }
+
+    .reticle-tr { top: 34px; right: 0; }
+    .reticle-tr::before { top: 0; right: 0; }
+    .reticle-tr::after  { top: 0; right: 0; }
+
+    .reticle-bl { bottom: 0; left: 0; }
+    .reticle-bl::before { bottom: 0; left: 0; }
+    .reticle-bl::after  { bottom: 0; left: 0; }
+
+    .reticle-br { bottom: 0; right: 0; }
+    .reticle-br::before { bottom: 0; right: 0; }
+    .reticle-br::after  { bottom: 0; right: 0; }
+
+    /* Tick marks along edges */
+    .tick-row {
+      position: absolute;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      gap: 0;
+    }
+
+    .tick-top {
+      top: 34px; left: 30px; right: 30px;
+      height: 4px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .tick-bottom {
+      bottom: 0; left: 30px; right: 30px;
+      height: 4px;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .tick {
+      width: 1px;
+      background: var(--cyan);
+      opacity: 0.18;
+    }
+
+    .tick:nth-child(5n+1) { height: 4px; opacity: 0.35; }
+    .tick:nth-child(1),
+    .tick:last-child { opacity: 0; }
+
+    /* Scan overlay animation */
+    .scan {
+      position: absolute;
+      left: 0; right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom,
+        transparent,
+        rgba(0,200,255,0.025) 50%,
+        transparent);
+      pointer-events: none;
+      z-index: 5;
+      animation: scan-move 10s linear infinite;
+    }
+
+    @keyframes scan-move {
+      0%   { top: 28px; }
+      100% { top: 100%; }
+    }
+
+    /* ── Right column ── */
+    .right {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    /* Identity block */
+    .identity {
+      padding: 18px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .id-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .id-name {
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+    }
+
+    .id-label {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      opacity: 0.6;
+    }
+
+    .id-bio {
+      font-family: system-ui, sans-serif;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* Projects block */
+    .projects {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .projects-header {
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .proj-row {
+      flex: 1;
+      border-bottom: 1px solid var(--border-s);
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .proj-row:last-child { border-bottom: none; }
+
+    .proj-row::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--proj-color, var(--cyan));
+      transform: scaleY(0);
+      transition: transform 0.18s;
+    }
+
+    .proj-row:hover { background: rgba(0,200,255,0.03); }
+    .proj-row:hover::before { transform: scaleY(1); }
+
+    .proj-row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .proj-index {
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+      margin-right: 8px;
+    }
+
+    .proj-name {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .proj-chips {
+      display: flex;
+      gap: 4px;
+    }
+
+    .chip {
+      font-size: 9px;
+      padding: 1px 6px;
+      border: 1px solid var(--proj-color, var(--cyan));
+      color: var(--proj-color, var(--cyan));
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      opacity: 0.55;
+    }
+
+    .proj-desc {
+      font-family: system-ui, sans-serif;
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .proj-link {
+      font-size: 10px;
+      color: var(--proj-color, var(--cyan));
+      opacity: 0;
+      letter-spacing: 0.06em;
+      transition: opacity 0.15s;
+      margin-top: 2px;
+    }
+
+    .proj-row:hover .proj-link { opacity: 0.7; }
+
+    /* Color per project */
+    .row-pat { --proj-color: #9B8FFF; }
+    .row-gal { --proj-color: #FFAB60; }
+    .row-sis { --proj-color: #5DD89A; }
+  </style>
+</head>
+<body>
+<div class="root">
+
+  <!-- HUD bar -->
+  <div class="hud-bar">
+    <div class="hud-bar-left">
+      <span class="hud-ident">[Your Name]</span>
+      <span class="hud-sep">/</span>
+      <span class="hud-stat">PORTFOLIO SYSTEMS ONLINE</span>
+    </div>
+    <div class="hud-bar-right">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        LIVE
+      </div>
+      <span class="hud-clock" id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- Taco panel -->
+    <div class="taco-panel">
+      <div class="panel-bar">
+        <div class="panel-bar-label">Solar Taco Tuesday</div>
+        <div class="panel-bar-data">
+          <div class="data-item">PLANETS <span>9</span></div>
+          <div class="data-item">SCALE <span>REAL-TIME</span></div>
+          <div class="data-item">STACK <span>RUST · JS</span></div>
+        </div>
+      </div>
+
+      <!-- Reticles -->
+      <div class="reticle reticle-tl"></div>
+      <div class="reticle reticle-tr"></div>
+      <div class="reticle reticle-bl"></div>
+      <div class="reticle reticle-br"></div>
+
+      <!-- Tick marks -->
+      <div class="tick-row tick-top" id="ticks-top"></div>
+      <div class="tick-row tick-bottom" id="ticks-bot"></div>
+
+      <div class="scan"></div>
+
+      <iframe src="../../../taco-tuesday/index.html"
+              title="Solar Taco Tuesday"
+              scrolling="no"></iframe>
+    </div>
+
+    <!-- Right column -->
+    <div class="right">
+
+      <div class="identity">
+        <div class="id-row">
+          <span class="id-name">[Your Name]</span>
+          <span class="id-label">Engineer</span>
+        </div>
+        <p class="id-bio">[Bio — what you build, what connects ancient church texts, Galileo's mechanics, planetary astronomy, and Greek myth. Keep it tight.]</p>
+      </div>
+
+      <div class="projects">
+        <div class="projects-header">
+          <span>Projects</span>
+          <span>03</span>
+        </div>
+
+        <a class="proj-row row-pat" href="https://patristics-site.vercel.app/" target="_blank">
+          <div class="proj-row-top">
+            <div>
+              <span class="proj-index">01 //</span>
+              <span class="proj-name">Patristics</span>
+            </div>
+            <div class="proj-chips">
+              <span class="chip">AI</span>
+              <span class="chip">Pipeline</span>
+            </div>
+          </div>
+          <div class="proj-desc">Three-stage AI pipeline parsing ~400 patristic texts.</div>
+          <div class="proj-link">→ patristics-site.vercel.app</div>
+        </a>
+
+        <a class="proj-row row-gal" href="https://galileo-two-new-sciences.vercel.app/" target="_blank">
+          <div class="proj-row-top">
+            <div>
+              <span class="proj-index">02 //</span>
+              <span class="proj-name">Galileo's Two New Sciences</span>
+            </div>
+            <div class="proj-chips">
+              <span class="chip">AI</span>
+              <span class="chip">Text</span>
+            </div>
+          </div>
+          <div class="proj-desc">AI adds modern notation and commentary to the 1638 original.</div>
+          <div class="proj-link">→ galileo-two-new-sciences.vercel.app</div>
+        </a>
+
+        <a class="proj-row row-sis" href="/sisyphus-quest/">
+          <div class="proj-row-top">
+            <div>
+              <span class="proj-index">03 //</span>
+              <span class="proj-name">Sisyphus Quest</span>
+            </div>
+            <div class="proj-chips">
+              <span class="chip">Game</span>
+              <span class="chip">Vue</span>
+            </div>
+          </div>
+          <div class="proj-desc">Pixel art browser game — push the rock, earn XP.</div>
+          <div class="proj-link">→ /sisyphus-quest/</div>
+        </a>
+
+      </div>
+    </div><!-- /right -->
+
+  </div><!-- /body -->
+</div><!-- /root -->
+
+<script>
+  // Generate tick marks
+  function makeTicks(id, count) {
+    const container = document.getElementById(id);
+    for (let i = 0; i < count; i++) {
+      const t = document.createElement('div');
+      t.className = 'tick';
+      container.appendChild(t);
+    }
+  }
+  makeTicks('ticks-top', 60);
+  makeTicks('ticks-bot', 60);
+
+  // Live clock
+  function tick() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toUTCString().slice(17, 25) + ' UTC';
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>

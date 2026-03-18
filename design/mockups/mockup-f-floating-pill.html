@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Floating Pill Nav</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #FFFFFF;
+      --text:     #111111;
+      --muted:    #888888;
+      --border:   #EBEBEB;
+      --surface:  #F5F5F5;
+      --accent:   #0066FF;
+      --pill-bg:  rgba(17, 17, 17, 0.88);
+      --pill-txt: rgba(255, 255, 255, 0.7);
+      --pill-act: #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      /* Extra bottom padding so last section clears the floating pill */
+      padding-bottom: 100px;
+    }
+
+    /* ── Floating pill ── */
+    .pill-nav {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      background: var(--pill-bg);
+      backdrop-filter: blur(16px) saturate(1.5);
+      -webkit-backdrop-filter: blur(16px) saturate(1.5);
+      border-radius: 999px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .pill-link {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--pill-txt);
+      transition: background 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+
+    .pill-link:hover {
+      color: var(--pill-act);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .pill-link.active {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .pill-icon { font-size: 14px; line-height: 1; }
+
+    /* Section name hidden by default, shown only on active */
+    .pill-label {
+      max-width: 0;
+      overflow: hidden;
+      transition: max-width 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .pill-link.active .pill-label,
+    .pill-link:hover .pill-label {
+      max-width: 120px;
+    }
+
+    /* ── Divider between icon groups ── */
+    .pill-sep {
+      width: 1px;
+      height: 18px;
+      background: rgba(255,255,255,0.12);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    /* ── Page sections ── */
+    .section {
+      scroll-margin-top: 0;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 max(40px, 10vw);
+      max-width: 1000px;
+    }
+
+    .hero-name {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      line-height: 0.95;
+      margin-bottom: 24px;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    .scroll-hint {
+      margin-top: 48px;
+      font-size: 12px;
+      color: var(--border);
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scroll-hint::before {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    /* ── Content sections ── */
+    .content-band {
+      padding: 80px max(40px, 6vw);
+      max-width: 860px;
+    }
+
+    .band-rule {
+      width: 36px;
+      height: 3px;
+      background: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .band-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+
+    /* ── About ── */
+    .about-body {
+      max-width: 600px;
+    }
+
+    .about-body p {
+      color: var(--muted);
+      margin-bottom: 1em;
+      font-size: 1.05rem;
+    }
+
+    .about-body p:last-child { margin-bottom: 0; }
+
+    /* ── Projects ── */
+    .project-row {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 16px 20px;
+      align-items: start;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .project-row:first-child {
+      border-top: 1px solid var(--border);
+    }
+
+    .project-num {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--border);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      padding-top: 4px;
+    }
+
+    .project-info { }
+
+    .project-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .project-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 520px;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .proj-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+    }
+
+    .project-action {
+      align-self: center;
+    }
+
+    .action-btn {
+      display: inline-block;
+      padding: 9px 18px;
+      background: var(--text);
+      color: var(--bg);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .action-btn:hover { opacity: 0.75; }
+
+    /* ── Embed section ── */
+    .embed-section {
+      padding: 0 max(40px, 6vw) 80px;
+    }
+
+    .embed-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .embed-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .embed-chip {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #FFF0E0;
+      color: #C45C00;
+      font-weight: 600;
+      border: 1px solid #FFD5A8;
+    }
+
+    .embed-frame {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .embed-frame iframe {
+      display: block;
+      width: 100%;
+      height: 560px;
+      border: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 0 max(40px, 6vw) 32px;
+      font-size: 12px;
+      color: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Floating pill nav ── -->
+  <nav class="pill-nav" id="pill-nav">
+    <a class="pill-link active" href="#hero" data-section="hero">
+      <span class="pill-icon">🏠</span>
+      <span class="pill-label">Home</span>
+    </a>
+    <a class="pill-link" href="#about" data-section="about">
+      <span class="pill-icon">👤</span>
+      <span class="pill-label">About</span>
+    </a>
+    <div class="pill-sep"></div>
+    <a class="pill-link" href="#projects" data-section="patristics">
+      <span class="pill-icon">📜</span>
+      <span class="pill-label">Patristics</span>
+    </a>
+    <a class="pill-link" href="#galileo" data-section="galileo">
+      <span class="pill-icon">🔭</span>
+      <span class="pill-label">Galileo</span>
+    </a>
+    <a class="pill-link" href="#taco" data-section="taco">
+      <span class="pill-icon">🌮</span>
+      <span class="pill-label">Taco Tuesday</span>
+    </a>
+    <a class="pill-link" href="#sisyphus" data-section="sisyphus">
+      <span class="pill-icon">🪨</span>
+      <span class="pill-label">Sisyphus</span>
+    </a>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="section" id="hero">
+    <div class="hero">
+      <h1 class="hero-name">[Your<br>Name]</h1>
+      <p class="hero-sub">Software engineer. I build things at the intersection of history, science, and software.</p>
+      <div class="scroll-hint">Scroll to explore</div>
+    </div>
+  </section>
+
+  <!-- ── About ── -->
+  <section class="section" id="about">
+    <div class="content-band">
+      <div class="band-rule"></div>
+      <h2 class="band-title">About</h2>
+      <div class="about-body">
+        <p>[Your bio. Talk about who you are and what ties these projects together. The thread between a patristics pipeline, annotated Galileo, a planetary taco tracker, and a Sisyphus game is probably not obvious to a first-time visitor — help them see it.]</p>
+        <p>[Current focus, background, or what's coming next.]</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Projects list ── -->
+  <section class="section" id="projects">
+    <div class="content-band">
+      <div class="band-rule"></div>
+      <h2 class="band-title">Projects</h2>
+
+      <div class="project-row" id="patristics">
+        <div class="project-num">01</div>
+        <div class="project-info">
+          <div class="project-title">Patristics</div>
+          <p class="project-desc">An AI-enabled three-stage data pipeline that parses through almost 400 patristic texts, extracting structured information at scale.</p>
+          <div class="project-tags">
+            <span class="proj-tag">AI</span>
+            <span class="proj-tag">Data pipeline</span>
+          </div>
+        </div>
+        <div class="project-action">
+          <a class="action-btn" href="https://patristics-site.vercel.app/" target="_blank">View →</a>
+        </div>
+      </div>
+
+      <div class="project-row" id="galileo">
+        <div class="project-num">02</div>
+        <div class="project-info">
+          <div class="project-title">Galileo's Two New Sciences, Annotated</div>
+          <p class="project-desc">Old texts made legible. AI adds modern mathematical notation, rendered figures, and commentary to Galileo's original 1638 work.</p>
+          <div class="project-tags">
+            <span class="proj-tag">AI</span>
+            <span class="proj-tag">Text</span>
+            <span class="proj-tag">History</span>
+          </div>
+        </div>
+        <div class="project-action">
+          <a class="action-btn" href="https://galileo-two-new-sciences.vercel.app/" target="_blank">Read →</a>
+        </div>
+      </div>
+
+      <div class="project-row" id="sisyphus">
+        <div class="project-num">04</div>
+        <div class="project-info">
+          <div class="project-title">Sisyphus Quest</div>
+          <p class="project-desc">You are Sisyphus. Push the rock up the hill. It rolls back. A pixel art browser game with XP and stats — for existential perseverance.</p>
+          <div class="project-tags">
+            <span class="proj-tag">Game</span>
+            <span class="proj-tag">Vue</span>
+            <span class="proj-tag">Pixel art</span>
+          </div>
+        </div>
+        <div class="project-action">
+          <a class="action-btn" href="/sisyphus-quest/">Play →</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Taco Tuesday embed (full bleed) ── -->
+  <section class="section embed-section" id="taco">
+    <div class="embed-label-row">
+      <span class="embed-title">🌮 Solar Taco Tuesday — Live</span>
+      <span class="embed-chip">Interactive · Rust</span>
+    </div>
+    <div class="embed-frame">
+      <iframe src="../../../taco-tuesday/index.html" title="Solar Taco Tuesday"></iframe>
+    </div>
+  </section>
+
+  <footer>&copy; 2025 [Your Name]</footer>
+
+  <script>
+    // Update active pill based on scroll
+    const sectionIds = ['hero', 'about', 'patristics', 'galileo', 'taco', 'sisyphus'];
+    const pillLinks = document.querySelectorAll('.pill-link[data-section]');
+
+    function updatePill() {
+      let active = 'hero';
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= window.innerHeight / 2) {
+          active = id;
+        }
+      }
+      pillLinks.forEach(l => l.classList.toggle('active', l.dataset.section === active));
+    }
+
+    window.addEventListener('scroll', updatePill, { passive: true });
+  </script>
+
+</body>
+</html>

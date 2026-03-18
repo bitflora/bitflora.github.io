@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — 2×2 Grid</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0A0A0A;
+      --sep:         #1E1E1E;
+      --header-h:    62px;
+      --text:        #F0EDE8;
+      --muted:       #666666;
+
+      --c-taco:      #C9A84C;
+      --c-pat:       #7C6FD4;
+      --c-gal:       #D4884A;
+      --c-sis:       #4BAD7A;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Header strip ── */
+    .header {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--sep);
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 50;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .header-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    .header-bio {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 6px;
+    }
+
+    .header-nav a {
+      font-size: 12px;
+      padding: 5px 12px;
+      border: 1px solid var(--sep);
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--muted);
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .header-nav a:hover {
+      color: var(--text);
+      border-color: #444;
+    }
+
+    /* ── 2×2 Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      height: calc(100vh - var(--header-h));
+      gap: 1px;
+      background: var(--sep);
+    }
+
+    /* ── Each tile ── */
+    .tile {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+      transition: filter 0.2s;
+    }
+
+    /* Accent color bar at top of each tile */
+    .tile::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--tile-color);
+      opacity: 0.7;
+      transition: opacity 0.2s, height 0.2s;
+    }
+
+    .tile:hover::after {
+      opacity: 1;
+      height: 3px;
+    }
+
+    /* Ambient glow on hover */
+    .tile:hover {
+      filter: brightness(1.12);
+    }
+
+    /* Tile color vars */
+    .tile-taco      { --tile-color: var(--c-taco); }
+    .tile-pat       { --tile-color: var(--c-pat); }
+    .tile-gal       { --tile-color: var(--c-gal); }
+    .tile-sis       { --tile-color: var(--c-sis); }
+
+    /* ── Taco Tuesday: full iframe ── */
+    .tile-taco iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* "Live" badge overlaid on taco tile */
+    .taco-badge {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--c-taco);
+      box-shadow: 0 0 6px var(--c-taco);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .taco-badge-text {
+      font-size: 12px;
+      color: rgba(240,237,232,0.75);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Content tiles ── */
+    .tile-content {
+      position: absolute;
+      inset: 0;
+      padding: 28px 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Large blurred background number */
+    .tile-numeral {
+      position: absolute;
+      bottom: -12px;
+      right: 10px;
+      font-size: 11rem;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      color: var(--tile-color);
+      opacity: 0.05;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      filter: blur(1px);
+    }
+
+    /* Ambient gradient blob */
+    .tile-blob {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: var(--tile-color);
+      opacity: 0.04;
+      filter: blur(60px);
+      bottom: -40px;
+      right: -40px;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .tile:hover .tile-blob {
+      opacity: 0.09;
+    }
+
+    .tile-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--tile-color);
+      margin-bottom: 12px;
+      opacity: 0.85;
+    }
+
+    .tile-title {
+      font-size: clamp(1.4rem, 2.4vw, 2rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .tile-desc {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 340px;
+      flex: 1;
+    }
+
+    .tile-action {
+      margin-top: 20px;
+    }
+
+    .tile-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--tile-color);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: gap 0.15s;
+    }
+
+    .tile-link:hover { gap: 11px; }
+
+    .tile-link-arrow {
+      font-size: 16px;
+      transition: transform 0.15s;
+    }
+
+    .tile-link:hover .tile-link-arrow {
+      transform: translateX(3px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <span class="header-name">[Your Name]</span>
+      <span class="header-bio">[One-line bio — software engineer, builder of things]</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <!-- 2×2 Grid -->
+  <div class="grid">
+
+    <!-- Taco Tuesday — live embed -->
+    <div class="tile tile-taco">
+      <iframe src="../../../taco-tuesday/index.html"
+              title="Solar Taco Tuesday"
+              scrolling="no"></iframe>
+      <div class="taco-badge">
+        <span class="live-dot"></span>
+        <span class="taco-badge-text">Solar Taco Tuesday — live</span>
+      </div>
+    </div>
+
+    <!-- Patristics -->
+    <div class="tile tile-pat">
+      <div class="tile-blob"></div>
+      <div class="tile-numeral">I</div>
+      <div class="tile-content">
+        <div class="tile-tag">AI · Data Pipeline</div>
+        <h2 class="tile-title">Patristics</h2>
+        <p class="tile-desc">An AI-enabled three-stage pipeline that parses almost 400 patristic texts — the writings of the early church fathers — extracting structured data at scale.</p>
+        <div class="tile-action">
+          <a class="tile-link" href="https://patristics-site.vercel.app/" target="_blank">
+            Visit project <span class="tile-link-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Galileo -->
+    <div class="tile tile-gal">
+      <div class="tile-blob"></div>
+      <div class="tile-numeral">II</div>
+      <div class="tile-content">
+        <div class="tile-tag">AI · Historical Text</div>
+        <h2 class="tile-title">Galileo's Two New Sciences, Annotated</h2>
+        <p class="tile-desc">Old texts, new life. AI adds modern mathematical notation, rendered figures, and commentary to Galileo's original 1638 work.</p>
+        <div class="tile-action">
+          <a class="tile-link" href="https://galileo-two-new-sciences.vercel.app/" target="_blank">
+            Read it <span class="tile-link-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sisyphus Quest -->
+    <div class="tile tile-sis">
+      <div class="tile-blob"></div>
+      <div class="tile-numeral">III</div>
+      <div class="tile-content">
+        <div class="tile-tag">Game · Vue · Pixel Art</div>
+        <h2 class="tile-title">Sisyphus Quest</h2>
+        <p class="tile-desc">You are Sisyphus. Push the rock up the hill. Watch it roll back. A browser game about eternal, absurd labor — with XP, stats, and pixel art.</p>
+        <div class="tile-action">
+          <a class="tile-link" href="/sisyphus-quest/">
+            Play the game <span class="tile-link-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
