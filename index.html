@@ -18,6 +18,7 @@
       --c-pat:        #9B8FFF;
       --c-gal:        #FFA050;
       --c-sis:        #E0E0E0;
+      --c-zoo:        #56C56E;
     }
 
     html, body {
@@ -215,6 +216,7 @@
       right: 28px;
       top: 176px;   /* 24px + ~132px identity + 12px gap */
       bottom: 28px;
+      min-height: 615px;
       width: 360px;
       padding: 0;
       overflow: hidden;
@@ -362,6 +364,18 @@
     .card-pat  { --c-accent: var(--c-pat); }
     .card-gal  { --c-accent: var(--c-gal); }
     .card-sis  { --c-accent: var(--c-sis); }
+    .card-zoo  { --c-accent: var(--c-zoo); }
+
+    /* Zoogoer: candlelit forest — deep green + lime glow */
+    .bg-zoo {
+      background:
+        url('images/zoogoer.png') no-repeat center center,
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(30, 130, 60, 0.92) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(80, 180, 80, 0.50) 0%, transparent 100%),
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(60, 140, 40, 0.08) 0%, transparent 100%),
+        #04100A;
+      background-size: auto, auto, auto, auto, auto;
+    }
 
     /* ── Bottom-center info panel (revealed on project hover) ── */
     .info-panel {
@@ -520,6 +534,7 @@
   </div>
   <div class="bg-overlay bg-gal"        id="bg-gal"></div>
   <div class="bg-overlay bg-sis"        id="bg-sis"></div>
+  <div class="bg-overlay bg-zoo"        id="bg-zoo"></div>
 
   <!-- ── Top-center live pill ── -->
   <div class="glass panel-pill" id="pill" style="opacity:0">
@@ -568,7 +583,7 @@
   <div class="glass panel-projects">
     <div class="proj-header">
       <span>Projects</span>
-      <span>4</span>
+      <span></span>
     </div>
 
     <!-- Solar Taco Tuesday -->
@@ -601,6 +616,17 @@
       </div>
       <p class="card-desc">An experiment in bringing new life to old texts by using AI to provide modern mathematical notation, figures, and commentary on Galileo's most important work.</p>
       <div class="card-cta">Read the text →</div>
+    </a>
+
+    <!-- Minecraft Zoogoer -->
+    <a class="proj-card card-zoo" data-project="zoo"
+       href="https://www.curseforge.com/minecraft/mc-mods/zoogoer" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Minecraft Zoogoer</span>
+        <span class="card-tag">Java · Mod</span>
+      </div>
+      <p class="card-desc">A Minecraft mod that adds new villagers who will admire the creatures you've collected and reward you for a well-built zoo.</p>
+      <div class="card-cta">View on CurseForge →</div>
     </a>
 
     <!-- Sisyphus Quest -->
@@ -647,6 +673,15 @@
         color:    '#FFA050',
         bg:       'gal',
       },
+      zoo: {
+        eyebrow:  'Minecraft Mod',
+        title:    'Minecraft Zoogoer',
+        subtitle: 'Java',
+        desc:     'A Minecraft mod that adds new villagers who will admire the creatures you\'ve collected and reward you for a well-built zoo.',
+        cta:      { href: 'https://www.curseforge.com/minecraft/mc-mods/zoogoer', label: 'View on CurseForge', target: '_blank' },
+        color:    '#56C56E',
+        bg:       'zoo',
+      },
       sis: {
         eyebrow:  'Pixel Art · Browser Game',
         title:    'Sisyphus Quest',
@@ -665,6 +700,7 @@
       pat:  document.getElementById('bg-pat'),
       gal:  document.getElementById('bg-gal'),
       sis:  document.getElementById('bg-sis'),
+      zoo:  document.getElementById('bg-zoo'),
     };
 
     let current = null;
