@@ -473,6 +473,24 @@
       letter-spacing: 0.05em;
     }
 
+    /* ── Scanning line over Taco Tuesday background ── */
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,174,96,0.45), transparent);
+      z-index: 1;
+      pointer-events: none;
+      animation: scan 8s linear infinite;
+    }
+
+    @keyframes scan {
+      0%   { top: 0; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
     /* ── Medium desktop: hide info panel when it can't fit ── */
     @media (max-width: 1299px) {
       .info-panel { display: none; }
@@ -520,6 +538,7 @@
 
   <!-- ── Full-screen Taco Tuesday ── -->
   <div class="bg-taco">
+    <div class="scan-line"></div>
     <iframe src="taco-tuesday/index.html"
             title="Solar Taco Tuesday"
             scrolling="no"></iframe>
