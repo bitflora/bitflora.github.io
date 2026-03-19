@@ -369,7 +369,7 @@
       bottom: 28px;
       left: 50%;
       transform: translateX(-50%) translateY(12px);
-      width: min(680px, calc(100vw - 440px));
+      width: min(680px, calc(100vw - 840px));
       z-index: 5;
       padding: 28px 36px;
       border-radius: 18px;
@@ -457,6 +457,48 @@
       font-size: 12px;
       color: rgba(244,242,238,0.28);
       letter-spacing: 0.05em;
+    }
+
+    /* ── Medium desktop: hide info panel when it can't fit ── */
+    @media (max-width: 1299px) {
+      .info-panel { display: none; }
+    }
+
+    /* ── Mobile layout ── */
+    @media (max-width: 1023px) {
+      html, body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      body {
+        padding: 24px 0 24px;
+      }
+
+      .panel-pill { display: none; }
+
+      .panel-identity,
+      .panel-projects {
+        position: relative;
+        z-index: 10;
+        width: min(360px, calc(100% - 32px));
+        margin: 16px auto;
+        top: auto; right: auto; bottom: auto; left: auto;
+      }
+
+      .panel-projects {
+        height: auto;
+        overflow: visible;
+        flex-direction: column;
+        bottom: auto;
+        margin-top: 80px;
+      }
+
+      .proj-card {
+        flex: none;
+        min-height: auto;
+      }
     }
   </style>
 </head>
@@ -662,9 +704,22 @@
       infoPanel.classList.add('active');
     }
 
+    const isDesktop = () => window.innerWidth >= 1024;
+
     document.querySelectorAll('.proj-card').forEach(card => {
       const key = card.dataset.project;
-      card.addEventListener('mouseenter', () => showProject(key));
+
+      card.addEventListener('mouseenter', () => {
+        showProject(key);
+      });
+
+      card.addEventListener('click', (e) => {
+        if (!isDesktop()) {
+          e.preventDefault();
+          const href = projects[key].cta ? projects[key].cta.href : null;
+          if (href) window.open(href, '_blank');
+        }
+      });
     });
 
     // Auto-introduce Taco Tuesday info panel ~800ms after load
