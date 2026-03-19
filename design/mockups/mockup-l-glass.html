@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Glass</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass-bg:     rgba(8, 10, 20, 0.60);
+      --glass-border: rgba(255, 255, 255, 0.10);
+      --glass-shine:  rgba(255, 255, 255, 0.05);
+      --text:         #F4F2EE;
+      --muted:        rgba(244, 242, 238, 0.45);
+      --blur:         blur(24px) saturate(1.5);
+      --c-taco:       #D4AE60;
+      --c-pat:        #9B8FFF;
+      --c-gal:        #FFA050;
+      --c-sis:        #50D490;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Taco Tuesday — full-screen background ── */
+    .bg-taco {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-taco iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+      transition: opacity 0.5s ease;
+    }
+
+    /* ── Per-project theme overlays ── */
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.55s ease;
+      pointer-events: none;
+    }
+
+    .bg-overlay.active { opacity: 1; }
+
+    /* Patristics: candlelit manuscript — deep violet + amber glow */
+    .bg-pat {
+      background:
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(100, 45, 180, 0.92) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(160, 80, 220, 0.50) 0%, transparent 100%),
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(180, 120, 60, 0.08) 0%, transparent 100%),
+        #07040F;
+    }
+
+    /* Galileo: warm amber starfield — observatory at dusk */
+    .bg-gal {
+      background:
+        radial-gradient(ellipse 55% 60% at 22% 48%, rgba(180, 90, 10, 0.90) 0%, transparent 100%),
+        radial-gradient(ellipse 45% 38% at 72% 72%, rgba(120, 55, 5, 0.65) 0%, transparent 100%),
+        radial-gradient(ellipse 60% 40% at 55% 10%, rgba(80, 35, 0, 0.40) 0%, transparent 100%),
+        #0D0805;
+    }
+
+    /* Sisyphus: dark earth + emerald underglow — the slope at night */
+    .bg-sis {
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 105%, rgba(18, 120, 55, 0.88) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 50% at 12% 22%, rgba(8, 65, 28, 0.55) 0%, transparent 100%),
+        radial-gradient(ellipse 50% 30% at 85% 40%, rgba(4, 40, 16, 0.40) 0%, transparent 100%),
+        #040C06;
+    }
+
+    /* Taco focus: slight dark veil so info text reads clearly */
+    .bg-taco-focus {
+      background: rgba(0, 0, 0, 0.30);
+    }
+
+    /* ── Glass base ── */
+    .glass {
+      position: fixed;
+      background: var(--glass-bg);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      color: var(--text);
+      z-index: 10;
+      box-shadow:
+        inset 0 1px 0 var(--glass-shine),
+        0 24px 64px rgba(0,0,0,0.5),
+        0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    /* ── Top-center live pill ── */
+    .panel-pill {
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 7px 18px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      transition: opacity 0.4s ease;
+    }
+
+    .pill-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--c-taco);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pip {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .pill-sep { color: rgba(255,255,255,0.15); }
+    .pill-name { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+    .pill-sub  { font-size: 11px; color: var(--muted); }
+
+    /* ── Identity panel — top left ── */
+    .panel-identity {
+      top: 24px;
+      left: 28px;
+      width: 360px;
+      padding: 20px 22px;
+    }
+
+    .id-eyebrow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--c-taco);
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+
+    .id-name {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .id-bio {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Projects panel — right, below identity ── */
+    .panel-projects {
+      right: 28px;
+      top: 176px;   /* 24px + ~132px identity + 12px gap */
+      bottom: 28px;
+      width: 360px;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .proj-header {
+      padding: 11px 20px;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(244,242,238,0.3);
+      display: flex;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    /* ── Project card ── */
+    .proj-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--glass-border);
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      transition: background 0.25s;
+    }
+
+    .proj-card:last-child { border-bottom: none; }
+
+    /* Left accent bar */
+    .proj-card::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--c-accent);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.25s;
+    }
+
+    .proj-card:hover::after { transform: scaleY(1); }
+
+    /* Background fill */
+    .proj-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--c-accent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .proj-card:hover::before { opacity: 0.07; }
+
+    .card-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    .card-tag {
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid var(--c-accent);
+      color: var(--c-accent);
+      letter-spacing: 0.07em;
+      opacity: 0.55;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .proj-card:hover .card-tag { opacity: 1; }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 7px;
+    }
+
+    .card-cta {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--c-accent);
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      position: relative;
+      z-index: 1;
+      transition: opacity 0.2s, gap 0.2s;
+    }
+
+    .proj-card:hover .card-cta { opacity: 0.9; gap: 8px; }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      color: var(--c-taco);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .live-pip {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--c-taco);
+      box-shadow: 0 0 5px var(--c-taco);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Card color variants */
+    .card-taco { --c-accent: var(--c-taco); }
+    .card-pat  { --c-accent: var(--c-pat); }
+    .card-gal  { --c-accent: var(--c-gal); }
+    .card-sis  { --c-accent: var(--c-sis); }
+
+    /* ── Center info panel (revealed on project hover) ── */
+    .info-panel {
+      position: fixed;
+      left: 5vw;
+      top: 50%;
+      transform: translateY(-44%);
+      width: min(500px, calc(100vw - 480px));
+      z-index: 5;
+      padding: 36px 40px;
+      border-radius: 18px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .info-panel.active {
+      opacity: 1;
+      transform: translateY(-50%);
+      pointer-events: auto;
+    }
+
+    .info-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--info-color, #D4AE60);
+      opacity: 0.85;
+      margin-bottom: 14px;
+    }
+
+    .info-eyebrow::before {
+      content: '';
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--info-color, #D4AE60);
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .info-title {
+      font-size: clamp(1.9rem, 3.8vw, 2.9rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.03;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .info-subtitle {
+      font-size: 12px;
+      color: var(--info-color, #D4AE60);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      opacity: 0.75;
+    }
+
+    .info-desc {
+      font-size: 15px;
+      color: rgba(244, 242, 238, 0.60);
+      line-height: 1.72;
+      margin-bottom: 28px;
+    }
+
+    .info-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--info-color, #D4AE60);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      border: 1px solid var(--info-color, #D4AE60);
+      padding: 9px 22px;
+      border-radius: 6px;
+      opacity: 0.85;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .info-link:hover {
+      opacity: 1;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .info-note {
+      font-size: 12px;
+      color: rgba(244,242,238,0.28);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Full-screen Taco Tuesday ── -->
+  <div class="bg-taco">
+    <iframe src="../../../taco-tuesday/index.html"
+            title="Solar Taco Tuesday"
+            scrolling="no"></iframe>
+  </div>
+
+  <!-- ── Per-project theme overlays ── -->
+  <div class="bg-overlay bg-taco-focus" id="bg-taco"></div>
+  <div class="bg-overlay bg-pat"        id="bg-pat"></div>
+  <div class="bg-overlay bg-gal"        id="bg-gal"></div>
+  <div class="bg-overlay bg-sis"        id="bg-sis"></div>
+
+  <!-- ── Top-center live pill ── -->
+  <div class="glass panel-pill" id="pill">
+    <div class="pill-live"><span class="pip"></span>Live</div>
+    <span class="pill-sep">|</span>
+    <span class="pill-name">Solar Taco Tuesday</span>
+    <span class="pill-sep">|</span>
+    <span class="pill-sub">Rust · Astronomy</span>
+  </div>
+
+  <!-- ── Identity panel — top right ── -->
+  <div class="glass panel-identity">
+    <div class="id-eyebrow">Portfolio</div>
+    <div class="id-name">[Your Name]</div>
+    <p class="id-bio">[Software engineer. The thread between ancient texts, Galileo, planetary astronomy, and Sisyphus is probably you.]</p>
+  </div>
+
+  <!-- ── Projects panel — right, expanded ── -->
+  <div class="glass panel-projects">
+    <div class="proj-header">
+      <span>Projects</span>
+      <span>4</span>
+    </div>
+
+    <!-- Solar Taco Tuesday -->
+    <div class="proj-card card-taco" data-project="taco">
+      <div class="card-top">
+        <span class="card-title">Solar Taco Tuesday</span>
+        <div class="live-badge"><span class="live-pip"></span>Live</div>
+      </div>
+      <p class="card-desc">Real-time planetary calendar tracking Taco Tuesday across all 9 planets. Rust-computed orbital periods rendered as an interactive solar system.</p>
+      <div class="card-cta">You're looking at it →</div>
+    </div>
+
+    <!-- Patristics -->
+    <a class="proj-card card-pat" data-project="pat"
+       href="https://patristics-site.vercel.app/" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Patristics</span>
+        <span class="card-tag">AI · Pipeline</span>
+      </div>
+      <p class="card-desc">AI pipeline indexing and cross-referencing ~400 texts from the Church Fathers. Semantic search across two thousand years of theological writing.</p>
+      <div class="card-cta">Visit site →</div>
+    </a>
+
+    <!-- Galileo -->
+    <a class="proj-card card-gal" data-project="gal"
+       href="https://galileo-two-new-sciences.vercel.app/" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Galileo's Two New Sciences</span>
+        <span class="card-tag">AI · Text</span>
+      </div>
+      <p class="card-desc">The 1638 treatise annotated with AI — modern notation, commentary, and context layered over Galileo's original Latin and English text.</p>
+      <div class="card-cta">Read the text →</div>
+    </a>
+
+    <!-- Sisyphus Quest -->
+    <a class="proj-card card-sis" data-project="sis"
+       href="/sisyphus-quest/">
+      <div class="card-top">
+        <span class="card-title">Sisyphus Quest</span>
+        <span class="card-tag">Vue · Game</span>
+      </div>
+      <p class="card-desc">Push the boulder. Watch it fall. Earn XP. A meditative pixel-art browser game about the absurdity of persistence.</p>
+      <div class="card-cta">Play →</div>
+    </a>
+  </div>
+
+  <!-- ── Center info panel (hover reveal) ── -->
+  <div class="glass info-panel" id="info-panel"></div>
+
+  <script>
+    const projects = {
+      taco: {
+        eyebrow:  'Live · Background',
+        title:    'Solar Taco Tuesday',
+        subtitle: 'Rust · Astronomy · Interactive',
+        desc:     'Every Tuesday, somewhere in the solar system, it\'s Taco Tuesday. Real-time orbital mechanics computed in Rust — J2000 epoch math across all 9 planets, from Mercury\'s 88-day year to Pluto\'s 248-year orbit.',
+        cta:      null,
+        color:    '#D4AE60',
+        bg:       'taco',
+      },
+      pat: {
+        eyebrow:  'AI Pipeline',
+        title:    'Patristics',
+        subtitle: '~400 Texts · Church Fathers',
+        desc:     'A three-stage AI pipeline that ingests, processes, and semantically indexes writings from the early Church Fathers. Enabling search and cross-reference across two thousand years of theological thought.',
+        cta:      { href: 'https://patristics-site.vercel.app/', label: 'Visit site', target: '_blank' },
+        color:    '#9B8FFF',
+        bg:       'pat',
+      },
+      gal: {
+        eyebrow:  'AI · Historical Text',
+        title:    'Galileo\'s Two\nNew Sciences',
+        subtitle: '1638 Original · AI Annotated',
+        desc:     'Galileo\'s final published work, brought forward. AI layers modern mathematical notation, contextual commentary, and cross-references onto the original 1638 treatise on motion and the strength of materials.',
+        cta:      { href: 'https://galileo-two-new-sciences.vercel.app/', label: 'Read the text', target: '_blank' },
+        color:    '#FFA050',
+        bg:       'gal',
+      },
+      sis: {
+        eyebrow:  'Pixel Art · Browser Game',
+        title:    'Sisyphus Quest',
+        subtitle: 'Vue · TypeScript · Canvas',
+        desc:     'The myth made interactive. Push the boulder, earn XP, watch it roll back. A pixel-art browser game that turns Camus\'s absurd hero into a playable roguelite about the beauty of futility.',
+        cta:      { href: '/sisyphus-quest/', label: 'Play now' },
+        color:    '#50D490',
+        bg:       'sis',
+      },
+    };
+
+    const infoPanel = document.getElementById('info-panel');
+    const pill      = document.getElementById('pill');
+    const bgMap     = {
+      taco: document.getElementById('bg-taco'),
+      pat:  document.getElementById('bg-pat'),
+      gal:  document.getElementById('bg-gal'),
+      sis:  document.getElementById('bg-sis'),
+    };
+
+    let current = null;
+
+    function showProject(key) {
+      if (current === key) return;
+      current = key;
+      const p = projects[key];
+
+      // Swap background overlay
+      Object.values(bgMap).forEach(el => el.classList.remove('active'));
+      bgMap[p.bg].classList.add('active');
+
+      // Dim the live pill for non-taco projects
+      pill.style.opacity = key === 'taco' ? '1' : '0.35';
+
+      // Build info panel content
+      infoPanel.style.setProperty('--info-color', p.color);
+      const titleHtml = p.title.replace('\n', '<br>');
+      const ctaHtml   = p.cta
+        ? `<a class="info-link" href="${p.cta.href}"${p.cta.target ? ` target="${p.cta.target}"` : ''}>${p.cta.label} →</a>`
+        : `<p class="info-note">↑ The background is the project</p>`;
+
+      infoPanel.innerHTML = `
+        <div class="info-eyebrow">${p.eyebrow}</div>
+        <div class="info-title">${titleHtml}</div>
+        <div class="info-subtitle">${p.subtitle}</div>
+        <p class="info-desc">${p.desc}</p>
+        ${ctaHtml}
+      `;
+      infoPanel.classList.add('active');
+    }
+
+    function clearProject() {
+      current = null;
+      Object.values(bgMap).forEach(el => el.classList.remove('active'));
+      pill.style.opacity = '1';
+      infoPanel.classList.remove('active');
+    }
+
+    document.querySelectorAll('.proj-card').forEach(card => {
+      const key = card.dataset.project;
+      card.addEventListener('mouseenter', () => showProject(key));
+      card.addEventListener('mouseleave', clearProject);
+    });
+  </script>
+</body>
+</html>

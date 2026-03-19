@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Playful</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FDFBF7;
+      --text: #1E1E1E;
+      --muted: #6B6B6B;
+      --border: #E8E2D8;
+
+      /* Per-project accent colors */
+      --c-patristics:  #5B4FCF;  /* purple */
+      --c-galileo:     #CF7A2E;  /* amber */
+      --c-taco:        #E0453B;  /* red-orange */
+      --c-sisyphus:    #3A9E6A;  /* green */
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    /* ── Header bar ── */
+    .site-header {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--text);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .site-header .logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .site-header nav a {
+      margin-left: 28px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .site-header nav a:hover { color: var(--text); }
+
+    /* ── Page ── */
+    .page-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 72px 40px 120px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      margin-bottom: 80px;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    .hero p {
+      max-width: 540px;
+      font-size: 1.05rem;
+      color: var(--muted);
+    }
+
+    /* ── Section heading ── */
+    .section-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── About ── */
+    .about-section {
+      margin-bottom: 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 640px) {
+      .about-section { grid-template-columns: 1fr; }
+    }
+
+    .about-text p { color: var(--muted); margin-bottom: 1em; }
+    .about-text p:last-child { margin-bottom: 0; }
+
+    .about-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .stat-chip {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .stat-chip .num {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .stat-chip .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── Projects grid ── */
+    .projects-section {
+      margin-bottom: 80px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background: white;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+    }
+
+    .card-color-bar {
+      height: 6px;
+    }
+
+    .card--patristics .card-color-bar  { background: var(--c-patristics); }
+    .card--galileo    .card-color-bar  { background: var(--c-galileo); }
+    .card--taco       .card-color-bar  { background: var(--c-taco); }
+    .card--sisyphus   .card-color-bar  { background: var(--c-sisyphus); }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .card-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      color: white;
+      transition: opacity 0.15s;
+    }
+
+    .card-btn:hover { opacity: 0.82; }
+
+    .card--patristics .card-btn  { background: var(--c-patristics); }
+    .card--galileo    .card-btn  { background: var(--c-galileo); }
+    .card--taco       .card-btn  { background: var(--c-taco); }
+    .card--sisyphus   .card-btn  { background: var(--c-sisyphus); }
+
+    /* ── Embed card — full width ── */
+    .card--embed {
+      grid-column: 1 / -1;
+    }
+
+    .card--embed .card-body {
+      padding: 20px 24px 0;
+    }
+
+    .card--embed iframe {
+      display: block;
+      width: 100%;
+      height: 500px;
+      border: none;
+      margin-top: 16px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      padding-top: 40px;
+      border-top: 2px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">[Your Name]</div>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+    </nav>
+  </header>
+
+  <div class="page-wrap">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">Portfolio</div>
+      <h1>I build <em>weird,</em><br>useful things.</h1>
+      <p>From ancient manuscripts to planetary taco calendars — a collection of projects that blur the lines between software engineering and curiosity.</p>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="section-heading">About me</div>
+      <div class="about-section">
+        <div class="about-text">
+          <p>[Your bio here. Talk about what drives you, the intersection of your interests, and what makes your work distinct. A few punchy sentences work better than a long paragraph.]</p>
+          <p>[Current focus, background, or things you're excited about right now.]</p>
+        </div>
+        <div class="about-stats">
+          <div class="stat-chip">
+            <div class="num">4</div>
+            <div class="label">Projects shipped</div>
+          </div>
+          <div class="stat-chip">
+            <div class="num">400+</div>
+            <div class="label">Patristic texts processed</div>
+          </div>
+          <div class="stat-chip">
+            <div class="num">9</div>
+            <div class="label">Planets monitored for tacos</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects">
+      <div class="section-heading">Projects</div>
+      <div class="cards-grid">
+
+        <div class="card card--patristics">
+          <div class="card-color-bar"></div>
+          <div class="card-body">
+            <div class="card-icon">📜</div>
+            <div class="card-title">Patristics</div>
+            <p class="card-desc">An AI-enabled three-stage data pipeline that parses through almost 400 patristic texts, extracting structured data at scale.</p>
+            <div class="card-footer">
+              <div class="card-pills">
+                <span class="pill">AI</span>
+                <span class="pill">Pipeline</span>
+              </div>
+              <a class="card-btn" href="https://patristics-site.vercel.app/" target="_blank">View →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--galileo">
+          <div class="card-color-bar"></div>
+          <div class="card-body">
+            <div class="card-icon">🔭</div>
+            <div class="card-title">Galileo's Two New Sciences</div>
+            <p class="card-desc">Old texts, new life. AI adds modern mathematical notation, figures, and commentary to Galileo's original work.</p>
+            <div class="card-footer">
+              <div class="card-pills">
+                <span class="pill">AI</span>
+                <span class="pill">Text</span>
+              </div>
+              <a class="card-btn" href="https://galileo-two-new-sciences.vercel.app/" target="_blank">Read →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--sisyphus">
+          <div class="card-color-bar"></div>
+          <div class="card-body">
+            <div class="card-icon">🪨</div>
+            <div class="card-title">Sisyphus Quest</div>
+            <p class="card-desc">You are Sisyphus. Push the rock up the hill. It rolls back down. Repeat. A browser game with pixel art and an XP bar for perseverance.</p>
+            <div class="card-footer">
+              <div class="card-pills">
+                <span class="pill">Game</span>
+                <span class="pill">Vue</span>
+              </div>
+              <a class="card-btn" href="/sisyphus-quest/">Play →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Taco Tuesday — full width embed -->
+        <div class="card card--taco card--embed">
+          <div class="card-color-bar"></div>
+          <div class="card-body">
+            <div class="card-icon">🌮</div>
+            <div class="card-title">Solar Taco Tuesday</div>
+            <p class="card-desc">Is it Taco Tuesday right now — on Mars? On Jupiter? On Pluto? An interactive solar system showing the current day across all nine planets, live.</p>
+            <div class="card-pills" style="margin-bottom: 0">
+              <span class="pill">Rust</span>
+              <span class="pill">Astronomy</span>
+              <span class="pill">Interactive</span>
+            </div>
+            <iframe src="../../../taco-tuesday/index.html" title="Solar Taco Tuesday"></iframe>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      Made by [Your Name] &middot; 2025
+    </footer>
+
+  </div>
+</body>
+</html>

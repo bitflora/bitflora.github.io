@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #08090D;
+      --surface: #0F111A;
+      --border:  rgba(255,255,255,0.07);
+      --text:    #EEF0F5;
+      --muted:   #64677A;
+      --gold:    #C9A84C;
+      --purple:  #8B7FE8;
+      --amber:   #E09040;
+      --green:   #48B87A;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Animated background blobs ── */
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+
+    .blob-1 {
+      width: 500px; height: 500px;
+      background: rgba(201, 168, 76, 0.07);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+
+    .blob-2 {
+      width: 400px; height: 400px;
+      background: rgba(139, 127, 232, 0.06);
+      bottom: -80px; right: 35%;
+      animation-delay: -6s;
+    }
+
+    .blob-3 {
+      width: 300px; height: 300px;
+      background: rgba(72, 184, 122, 0.05);
+      bottom: 0; right: 0;
+      animation-delay: -12s;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.08); }
+    }
+
+    /* ── Root layout ── */
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 62% 38%;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+    }
+
+    /* ── Top header row (spans both columns) ── */
+    .topbar {
+      grid-column: 1 / -1;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,9,13,0.7);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-name {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, var(--text) 0%, var(--muted) 120%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .topbar-count {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Left column: Taco Tuesday ── */
+    .taco-panel {
+      position: relative;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Reticle corner brackets */
+    .bracket {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: rgba(201,168,76,0.5);
+      border-style: solid;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .bracket-tl { top: 12px; left: 12px;  border-width: 2px 0 0 2px; }
+    .bracket-tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+    .bracket-bl { bottom: 12px; left: 12px;  border-width: 0 0 2px 2px; }
+    .bracket-br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+    /* Animated scanning line across the taco panel */
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+      z-index: 10;
+      pointer-events: none;
+      animation: scan 8s linear infinite;
+    }
+
+    @keyframes scan {
+      0%   { top: 0; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .taco-panel iframe {
+      display: block;
+      width: 100%;
+      flex: 1;
+      border: none;
+    }
+
+    /* Title overlay at bottom of taco panel */
+    .taco-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 24px;
+      background: linear-gradient(to top, rgba(8,9,13,0.9) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .taco-overlay-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .taco-overlay-meta {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    /* Animated ring glow around taco panel */
+    .taco-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(201,168,76,0);
+      pointer-events: none;
+      z-index: 8;
+      transition: border-color 0.3s;
+    }
+
+    .taco-panel:hover::before {
+      border-color: rgba(201,168,76,0.2);
+    }
+
+    /* ── Right column ── */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* About section */
+    .about-block {
+      padding: 24px 24px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .about-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .about-name {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .about-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* Projects section */
+    .projects-block {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .projects-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 14px 24px 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    /* Each project row */
+    .project-row {
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .project-row:last-child { border-bottom: none; }
+
+    /* Hover fill */
+    .project-row::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--row-color);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .project-row:hover::before { opacity: 0.04; }
+
+    /* Left accent stripe */
+    .project-row::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--row-color);
+      transform: scaleY(0);
+      transition: transform 0.2s;
+      transform-origin: center;
+    }
+
+    .project-row:hover::after { transform: scaleY(1); }
+
+    .proj-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .proj-info {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .proj-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
+    }
+
+    .proj-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .proj-tags {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .proj-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid var(--row-color);
+      color: var(--row-color);
+      letter-spacing: 0.05em;
+      opacity: 0.7;
+    }
+
+    .proj-arrow {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: transform 0.15s, color 0.15s;
+    }
+
+    .project-row:hover .proj-arrow {
+      transform: translateX(4px);
+      color: var(--row-color);
+    }
+
+    /* Row color vars */
+    .row-pat  { --row-color: var(--purple); }
+    .row-gal  { --row-color: var(--amber); }
+    .row-sis  { --row-color: var(--green); }
+  </style>
+</head>
+<body>
+
+  <!-- Background blobs -->
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="layout">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <span class="topbar-name">[Your Name]</span>
+      <span class="topbar-count">4 projects</span>
+    </header>
+
+    <!-- Left: Taco Tuesday -->
+    <div class="taco-panel">
+      <div class="bracket bracket-tl"></div>
+      <div class="bracket bracket-tr"></div>
+      <div class="bracket bracket-bl"></div>
+      <div class="bracket bracket-br"></div>
+      <div class="scan-line"></div>
+      <iframe src="../../../taco-tuesday/index.html"
+              title="Solar Taco Tuesday"
+              scrolling="no"></iframe>
+      <div class="taco-overlay">
+        <div class="taco-overlay-title">Solar Taco Tuesday</div>
+        <div class="taco-overlay-meta">Rust · Astronomy · Interactive</div>
+      </div>
+    </div>
+
+    <!-- Right: About + Projects -->
+    <div class="right-panel">
+
+      <div class="about-block">
+        <div class="about-label">About</div>
+        <div class="about-name">[Your Name]</div>
+        <p class="about-text">[A few sentences about who you are, what drives you, and what connects these projects. The thread between patristics, Galileo, planetary tacos, and Sisyphus probably has something to do with you.]</p>
+      </div>
+
+      <div class="projects-block">
+        <div class="projects-label">Projects</div>
+
+        <a class="project-row row-pat"
+           href="https://patristics-site.vercel.app/" target="_blank">
+          <span class="proj-icon">📜</span>
+          <div class="proj-info">
+            <div class="proj-title">Patristics</div>
+            <div class="proj-desc">AI pipeline · 400 patristic texts</div>
+          </div>
+          <div class="proj-tags">
+            <span class="proj-tag">AI</span>
+            <span class="proj-tag">Pipeline</span>
+          </div>
+          <span class="proj-arrow">→</span>
+        </a>
+
+        <a class="project-row row-gal"
+           href="https://galileo-two-new-sciences.vercel.app/" target="_blank">
+          <span class="proj-icon">🔭</span>
+          <div class="proj-info">
+            <div class="proj-title">Galileo's Two New Sciences</div>
+            <div class="proj-desc">AI-annotated historical text</div>
+          </div>
+          <div class="proj-tags">
+            <span class="proj-tag">AI</span>
+            <span class="proj-tag">Text</span>
+          </div>
+          <span class="proj-arrow">→</span>
+        </a>
+
+        <a class="project-row row-sis"
+           href="/sisyphus-quest/">
+          <span class="proj-icon">🪨</span>
+          <div class="proj-info">
+            <div class="proj-title">Sisyphus Quest</div>
+            <div class="proj-desc">Pixel art browser game · Vue</div>
+          </div>
+          <div class="proj-tags">
+            <span class="proj-tag">Game</span>
+            <span class="proj-tag">Vue</span>
+          </div>
+          <span class="proj-arrow">→</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
