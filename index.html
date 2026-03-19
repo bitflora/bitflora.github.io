@@ -60,15 +60,36 @@
         radial-gradient(ellipse 40% 35% at 78% 18%, rgba(160, 80, 220, 0.50) 0%, transparent 100%),
         radial-gradient(ellipse 30% 30% at 50% 50%, rgba(180, 120, 60, 0.08) 0%, transparent 100%),
         #07040F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Galileo: warm amber starfield — observatory at dusk */
+    .bible-card {
+      padding: 20px;
+      width: 38vw;
+      max-width: 460px;
+      min-width: 260px;
+      pointer-events: none;
+    }
+    .bible-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    /* Galileo: old manuscript — aged parchment texture */
     .bg-gal {
       background:
-        radial-gradient(ellipse 55% 60% at 22% 48%, rgba(180, 90, 10, 0.90) 0%, transparent 100%),
-        radial-gradient(ellipse 45% 38% at 72% 72%, rgba(120, 55, 5, 0.65) 0%, transparent 100%),
-        radial-gradient(ellipse 60% 40% at 55% 10%, rgba(80, 35, 0, 0.40) 0%, transparent 100%),
-        #0D0805;
+        /* Vignette: near-black edges, dimmed centre */
+        radial-gradient(ellipse 72% 68% at 50% 50%, rgba(18, 8, 1, 0.52) 0%, rgba(4, 1, 0, 0.94) 100%),
+        /* Warm sepia tint */
+        linear-gradient(150deg, rgba(85, 48, 8, 0.28) 0%, rgba(45, 22, 3, 0.40) 100%),
+        /* Parchment manuscript photo (CC0, piqsels.com) */
+        url('images/parchment.jpg');
+      background-size: auto, auto, cover;
+      background-position: center, center, center;
     }
 
     /* Sisyphus: dark earth + emerald underglow — the slope at night */
@@ -168,6 +189,12 @@
     .id-bio {
       font-size: 12.5px;
       color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .id-skills {
+      font-size: 11px;
+      color: var(--text);
       line-height: 1.6;
     }
 
@@ -444,7 +471,11 @@
 
   <!-- ── Per-project theme overlays ── -->
   <div class="bg-overlay bg-taco-focus" id="bg-taco"></div>
-  <div class="bg-overlay bg-pat"        id="bg-pat"></div>
+  <div class="bg-overlay bg-pat"        id="bg-pat">
+    <div class="bible-card glass">
+      <img src="images/bible-hyperlink.png" alt="Bible hyperlink diagram">
+    </div>
+  </div>
   <div class="bg-overlay bg-gal"        id="bg-gal"></div>
   <div class="bg-overlay bg-sis"        id="bg-sis"></div>
 
@@ -461,22 +492,30 @@
   <div class="glass panel-identity">
     <div class="id-eyebrow">Portfolio</div>
     <div class="id-name">[Your Name]</div>
-    <p class="id-bio">[Software engineer. The thread between ancient texts, Galileo, planetary astronomy, and Sisyphus is probably you.]</p>
+    <p class="id-bio">I read old books and build new things. I cultivate trees and software.</p>
     <div class="id-links">
       <a class="id-link" href="https://github.com/[username]" target="_blank">GitHub ↗</a>
       <a class="id-link" href="mailto:[email]">Email</a>
       <a class="id-link" href="https://linkedin.com/in/[handle]" target="_blank">LinkedIn ↗</a>
     </div>
+    <p class="card-title">I have worked professionally with</p>
     <div class="id-stack">
-      <span class="id-tag">Rust</span>
+      <span class="id-tag">C++</span>
       <span class="id-tag">TypeScript</span>
-      <span class="id-tag">Vue</span>
       <span class="id-tag">Python</span>
       <span class="id-tag">AI / LLMs</span>
-      <span class="id-tag">C++</span>
-      <span class="id-tag">Common Lisp</span>
       <span class="id-tag">Java</span>
       <span class="id-tag">C#</span>
+      <span class="id-tag">React</span>
+      <span class="id-tag">Common Lisp</span>
+    </div>
+    <p class="card-title">I have dabbled in</p>
+    <div class="id-stack">
+      <span class="id-tag">Rust</span>
+      <span class="id-tag">Go</span>
+      <span class="id-tag">Swift</span>
+      <span class="id-tag">Vue</span>
+      <span class="id-tag">Scheme</span>
       <span class="id-tag">Piet</span>
     </div>
   </div>
@@ -494,7 +533,7 @@
         <span class="card-title">Solar Taco Tuesday</span>
         <div class="live-badge"><span class="live-pip"></span>Live</div>
       </div>
-      <p class="card-desc">Real-time planetary calendar tracking Taco Tuesday across all 9 planets. Rust-computed orbital periods rendered as an interactive solar system.</p>
+      <p class="card-desc">Planetary calendar tracking Taco Tuesday across the solar system. Your astronauts will always know where to go to get tacos.</p>
       <div class="card-cta">You're looking at it →</div>
     </div>
 
@@ -505,7 +544,7 @@
         <span class="card-title">Patristics</span>
         <span class="card-tag">AI · Pipeline</span>
       </div>
-      <p class="card-desc">AI pipeline indexing and cross-referencing ~400 texts from the Church Fathers. Semantic search across two thousand years of theological writing.</p>
+      <p class="card-desc">An AI-enabled three-stage data pipeline. Takes the most referenced text in history, parses and correlates over 400 additional texts referencing it, and presents it in a useable format.</p>
       <div class="card-cta">Visit site →</div>
     </a>
 
@@ -516,7 +555,7 @@
         <span class="card-title">Galileo's Two New Sciences</span>
         <span class="card-tag">AI · Text</span>
       </div>
-      <p class="card-desc">The 1638 treatise annotated with AI — modern notation, commentary, and context layered over Galileo's original Latin and English text.</p>
+      <p class="card-desc">An experiment in bringing new life to old texts by using AI to provide modern mathematical notation, figures, and commentary on Galileo's most important work.</p>
       <div class="card-cta">Read the text →</div>
     </a>
 
@@ -527,7 +566,7 @@
         <span class="card-title">Sisyphus Quest</span>
         <span class="card-tag">Vue · Game</span>
       </div>
-      <p class="card-desc">Push the boulder. Watch it fall. Earn XP. A meditative pixel-art browser game about the absurdity of persistence.</p>
+      <p class="card-desc">A game in the cookie-clicker genre. Push the boulder up the hill. We must imagine Sisyphus happy, so long as he is gaining XP.</p>
       <div class="card-cta">Play →</div>
     </a>
   </div>
