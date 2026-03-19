@@ -363,15 +363,15 @@
     .card-gal  { --c-accent: var(--c-gal); }
     .card-sis  { --c-accent: var(--c-sis); }
 
-    /* ── Center info panel (revealed on project hover) ── */
+    /* ── Bottom-center info panel (revealed on project hover) ── */
     .info-panel {
       position: fixed;
-      left: 5vw;
-      top: 50%;
-      transform: translateY(-44%);
-      width: min(500px, calc(100vw - 480px));
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      width: min(680px, calc(100vw - 440px));
       z-index: 5;
-      padding: 36px 40px;
+      padding: 28px 36px;
       border-radius: 18px;
       opacity: 0;
       pointer-events: none;
@@ -380,7 +380,7 @@
 
     .info-panel.active {
       opacity: 1;
-      transform: translateY(-50%);
+      transform: translateX(-50%) translateY(0);
       pointer-events: auto;
     }
 
@@ -480,7 +480,7 @@
   <div class="bg-overlay bg-sis"        id="bg-sis"></div>
 
   <!-- ── Top-center live pill ── -->
-  <div class="glass panel-pill" id="pill">
+  <div class="glass panel-pill" id="pill" style="opacity:0">
     <div class="pill-live"><span class="pip"></span>Live</div>
     <span class="pill-sep">|</span>
     <span class="pill-name">Solar Taco Tuesday</span>
@@ -634,8 +634,14 @@
       Object.values(bgMap).forEach(el => el.classList.remove('active'));
       bgMap[p.bg].classList.add('active');
 
-      // Pill opacity stays at 1 always (a project is always active)
-      pill.style.opacity = '1';
+      // Pill only visible for Taco Tuesday
+      pill.style.opacity = key === 'taco' ? '1' : '0';
+
+      // Hide info panel for Taco Tuesday (it's the background itself)
+      if (key === 'taco') {
+        infoPanel.classList.remove('active');
+        return;
+      }
 
       // Build info panel content
       infoPanel.style.setProperty('--info-color', p.color);
