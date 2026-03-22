@@ -19,6 +19,7 @@
       --c-gal:        #FFA050;
       --c-sis:        #E0E0E0;
       --c-zoo:        #56C56E;
+      --c-kep:        #E8D87E;
     }
 
     html, body {
@@ -365,6 +366,18 @@
     .card-gal  { --c-accent: var(--c-gal); }
     .card-sis  { --c-accent: var(--c-sis); }
     .card-zoo  { --c-accent: var(--c-zoo); }
+    .card-kep  { --c-accent: var(--c-kep); }
+
+    /* Kepler: celestial portrait — warm gold glows on deep space */
+    .bg-kep {
+      background:
+        url('images/kepler.jpg') no-repeat center center,
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(232, 200, 80, 0.55) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(200, 160, 60, 0.30) 0%, transparent 100%),
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(180, 140, 40, 0.08) 0%, transparent 100%),
+        #05060E;
+      background-size: auto, auto, auto, auto, auto;
+    }
 
     /* Zoogoer: candlelit forest — deep green + lime glow */
     .bg-zoo {
@@ -554,6 +567,7 @@
   <div class="bg-overlay bg-gal"        id="bg-gal"></div>
   <div class="bg-overlay bg-sis"        id="bg-sis"></div>
   <div class="bg-overlay bg-zoo"        id="bg-zoo"></div>
+  <div class="bg-overlay bg-kep"        id="bg-kep"></div>
 
   <!-- ── Top-center live pill ── -->
   <div class="glass panel-pill" id="pill" style="opacity:0">
@@ -567,12 +581,12 @@
   <!-- ── Identity panel — top left ── -->
   <div class="glass panel-identity">
     <div class="id-eyebrow">Portfolio</div>
-    <div class="id-name">[Your Name]</div>
+    <div class="id-name">Tim Jasko</div>
     <p class="id-bio">I read old books and build new things. I cultivate trees and software.</p>
     <div class="id-links">
-      <a class="id-link" href="https://github.com/[username]" target="_blank">GitHub ↗</a>
-      <a class="id-link" href="mailto:[email]">Email</a>
-      <a class="id-link" href="https://linkedin.com/in/[handle]" target="_blank">LinkedIn ↗</a>
+      <a class="id-link" href="https://github.com/bitflora" target="_blank">GitHub ↗</a>
+      <a class="id-link" href="mailto:tim.jasko@gmail.com">Email</a>
+      <a class="id-link" href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn ↗</a>
     </div>
     <p class="card-title">I have worked professionally with</p>
     <div class="id-stack">
@@ -631,7 +645,7 @@
        href="https://galileo-two-new-sciences.vercel.app/" target="_blank">
       <div class="card-top">
         <span class="card-title">Galileo's Two New Sciences</span>
-        <span class="card-tag">AI · Text</span>
+        <span class="card-tag">AI · Education</span>
       </div>
       <p class="card-desc">An experiment in bringing new life to old texts by using AI to provide modern mathematical notation, figures, and commentary on Galileo's most important work.</p>
       <div class="card-cta">Read the text →</div>
@@ -657,6 +671,17 @@
       </div>
       <p class="card-desc">A game in the cookie-clicker genre. Push the boulder up the hill. We must imagine Sisyphus happy, so long as he is gaining XP.</p>
       <div class="card-cta">Play →</div>
+    </a>
+
+    <!-- Kepler's Harmony of the World -->
+    <a class="proj-card card-kep" data-project="kep"
+       href="https://kepler-harmonies.vercel.app/" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Kepler's Harmony of the World</span>
+        <span class="card-tag">JS · Science</span>
+      </div>
+      <p class="card-desc">In his critical 1619 work, Johannes Kepler described the planets as making music. Now, we can hear what that would have sounded like.</p>
+      <div class="card-cta">Hear it now →</div>
     </a>
   </div>
 
@@ -701,6 +726,15 @@
         color:    '#56C56E',
         bg:       'zoo',
       },
+      kep: {
+        eyebrow:  'Astronomy · Music',
+        title:    'Kepler\'s Harmony\nof the World',
+        subtitle: '1619 · Harmonices Mundi · JavaScript',
+        desc:     'In his critical 1619 work, Johannes Kepler described the planets as making music. Now, we can hear what that would have sounded like.',
+        cta:      { href: 'https://kepler-harmonies.vercel.app/', label: 'Hear it now', target: '_blank' },
+        color:    '#E8D87E',
+        bg:       'kep',
+      },
       sis: {
         eyebrow:  'Pixel Art · Browser Game',
         title:    'Sisyphus Quest',
@@ -720,6 +754,7 @@
       gal:  document.getElementById('bg-gal'),
       sis:  document.getElementById('bg-sis'),
       zoo:  document.getElementById('bg-zoo'),
+      kep:  document.getElementById('bg-kep'),
     };
 
     let current = null;
