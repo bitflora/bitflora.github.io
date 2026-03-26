@@ -217,7 +217,7 @@
       right: 28px;
       top: 176px;   /* 24px + ~132px identity + 12px gap */
       bottom: 28px;
-      min-height: 615px;
+      min-height: 710px;
       width: 360px;
       padding: 0;
       overflow: hidden;
@@ -241,10 +241,11 @@
     /* ── Project card ── */
     .proj-card {
       flex: 1;
+      min-height: 112px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 14px 20px;
+      padding: 14px 20px 32px;
       border-bottom: 1px solid var(--glass-border);
       text-decoration: none;
       color: inherit;
@@ -334,7 +335,9 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      position: relative;
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
       z-index: 1;
       transition: opacity 0.2s, gap 0.2s;
     }
@@ -362,7 +365,7 @@
 
     /* Card color variants */
     .card-taco { --c-accent: var(--c-taco); }
-    .card-pat  { --c-accent: var(--c-pat); }
+    .card-pat  { --c-accent: var(--c-pat); flex: 1.4; }
     .card-gal  { --c-accent: var(--c-gal); }
     .card-sis  { --c-accent: var(--c-sis); }
     .card-zoo  { --c-accent: var(--c-zoo); }
