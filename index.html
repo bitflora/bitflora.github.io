@@ -20,6 +20,7 @@
       --c-sis:        #E0E0E0;
       --c-zoo:        #56C56E;
       --c-kep:        #E8D87E;
+      --c-pie:        #E84545;
     }
 
     html, body {
@@ -370,6 +371,7 @@
     .card-sis  { --c-accent: var(--c-sis); }
     .card-zoo  { --c-accent: var(--c-zoo); }
     .card-kep  { --c-accent: var(--c-kep); }
+    .card-pie  { --c-accent: var(--c-pie); }
 
     /* Kepler: celestial portrait — warm gold glows on deep space */
     .bg-kep {
@@ -391,6 +393,18 @@
         radial-gradient(ellipse 30% 30% at 50% 50%, rgba(60, 140, 40, 0.08) 0%, transparent 100%),
         #04100A;
       background-size: auto, auto, auto, auto, auto;
+    }
+
+    /* Piet: Mandelbrot — pretty.png centered at 2x over Mandelbrot set image */
+    .bg-pie {
+      background:
+        url('images/pretty.png') no-repeat center center,
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(232, 69, 69, 0.55) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(200, 50, 50, 0.40) 0%, transparent 100%),
+        url('images/mandelbrot.jpg') no-repeat center center,
+        #0A0306;
+      background-size: 220px 220px, auto, auto, cover, auto;
+      image-rendering: pixelated;
     }
 
     /* ── Bottom-center info panel (revealed on project hover) ── */
@@ -571,6 +585,7 @@
   <div class="bg-overlay bg-sis"        id="bg-sis"></div>
   <div class="bg-overlay bg-zoo"        id="bg-zoo"></div>
   <div class="bg-overlay bg-kep"        id="bg-kep"></div>
+  <div class="bg-overlay bg-pie"        id="bg-pie"></div>
 
   <!-- ── Top-center live pill ── -->
   <div class="glass panel-pill" id="pill" style="opacity:0">
@@ -686,6 +701,17 @@
       <p class="card-desc">In his critical 1619 work, Johannes Kepler described the planets as making music. Now, we can hear what that would have sounded like.</p>
       <div class="card-cta">Hear it now →</div>
     </a>
+
+    <!-- Mandelbrot in Piet -->
+    <a class="proj-card card-pie" data-project="pie"
+       href="https://github.com/bitflora/piet#llms-as-yak-shavers" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Mandelbrot in Piet</span>
+        <span class="card-tag">Piet · Rust</span>
+      </div>
+      <p class="card-desc">A Mandelbrot set renderer written in Piet — the esoteric language where programs are images and instructions are colors.</p>
+      <div class="card-cta">View on GitHub →</div>
+    </a>
   </div>
 
   <!-- ── Center info panel (hover reveal) ── -->
@@ -738,6 +764,15 @@
         color:    '#E8D87E',
         bg:       'kep',
       },
+      pie: {
+        eyebrow:  'Esoteric Language',
+        title:    'Mandelbrot in Piet',
+        subtitle: 'Piet · Rust · Python',
+        desc:     'Piet is an esoteric programming language where programs are abstract paintings and instructions are encoded as color transitions between blocks. In writing the displayed program, I explored the utility of LLMs in building tools that let a developer focus on the central task.',
+        cta:      { href: 'https://github.com/bitflora/piet#llms-as-yak-shavers', label: 'Read the Retrospective', target: '_blank' },
+        color:    '#E84545',
+        bg:       'pie',
+      },
       sis: {
         eyebrow:  'Pixel Art · Browser Game',
         title:    'Sisyphus Quest',
@@ -758,6 +793,7 @@
       sis:  document.getElementById('bg-sis'),
       zoo:  document.getElementById('bg-zoo'),
       kep:  document.getElementById('bg-kep'),
+      pie:  document.getElementById('bg-pie'),
     };
 
     let current = null;
