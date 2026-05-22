@@ -218,10 +218,10 @@
       right: 28px;
       top: 176px;   /* 24px + ~132px identity + 12px gap */
       bottom: 28px;
-      min-height: 710px;
       width: 360px;
       padding: 0;
-      overflow: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
       display: flex;
       flex-direction: column;
     }
@@ -237,12 +237,17 @@
       display: flex;
       justify-content: space-between;
       flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      background: inherit;
+      backdrop-filter: blur(20px);
+      z-index: 1;
     }
 
     /* ── Project card ── */
     .proj-card {
-      flex: 1;
-      min-height: 112px;
+      flex: 0 0 100px;
+      min-height: 80px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -297,6 +302,7 @@
 
     .card-title {
       margin-top: 10px;
+      padding-top: 20px;
       font-size: 13.5px;
       font-weight: 700;
       letter-spacing: -0.015em;
@@ -325,7 +331,7 @@
       line-height: 1.55;
       position: relative;
       z-index: 1;
-      margin-bottom: 7px;
+      margin-bottom: 15px;
     }
 
     .card-cta {
@@ -366,7 +372,7 @@
 
     /* Card color variants */
     .card-taco { --c-accent: var(--c-taco); }
-    .card-pat  { --c-accent: var(--c-pat); flex: 1.4; }
+    .card-pat  { --c-accent: var(--c-pat); }
     .card-gal  { --c-accent: var(--c-gal); }
     .card-sis  { --c-accent: var(--c-sis); }
     .card-zoo  { --c-accent: var(--c-zoo); }
@@ -600,7 +606,7 @@
   <div class="glass panel-identity">
     <div class="id-eyebrow">Portfolio</div>
     <div class="id-name">Tim Jasko</div>
-    <p class="id-bio">I read old books and build new things. I cultivate trees and software.</p>
+    <p class="id-bio">I read old books and build new things. I cultivate software but also fruit trees.</p>
     <div class="id-links">
       <a class="id-link" href="https://github.com/bitflora" target="_blank">GitHub ↗</a>
       <a class="id-link" href="mailto:tim.jasko@gmail.com">Email</a>
