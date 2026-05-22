@@ -21,6 +21,7 @@
       --c-zoo:        #56C56E;
       --c-kep:        #E8D87E;
       --c-pie:        #7EC8E3;
+      --c-sim:        #E54B4B;
     }
 
     html, body {
@@ -377,6 +378,7 @@
     .card-zoo  { --c-accent: var(--c-zoo); }
     .card-kep  { --c-accent: var(--c-kep); }
     .card-pie  { --c-accent: var(--c-pie); }
+    .card-sim  { --c-accent: var(--c-sim); }
 
     /* Kepler: celestial portrait — warm gold glows on deep space */
     .bg-kep {
@@ -410,6 +412,15 @@
         #0A0306;
       background-size: 220px 220px, auto, auto, cover, auto;
       image-rendering: pixelated;
+    }
+
+    /* Sim Tick: deep crimson medical/lab feel */
+    .bg-sim {
+      background:
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(180, 35, 35, 0.90) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(220, 70, 70, 0.50) 0%, transparent 100%),
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(140, 30, 30, 0.10) 0%, transparent 100%),
+        #0B0303;
     }
 
     /* ── Bottom-center info panel (revealed on project hover) ── */
@@ -508,6 +519,32 @@
       letter-spacing: 0.05em;
     }
 
+    /* ── Tick crawlers (Sim Tick) ── */
+    .tick-crawlers {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .tick-crawlers.active { opacity: 1; }
+    .tick {
+      position: absolute;
+      top: -7px;
+      left: -7px;
+      width: 14px;
+      height: 14px;
+      will-change: transform;
+      contain: layout paint;
+    }
+    .tick .legs { transform-origin: center; animation: legwiggle 0.32s ease-in-out infinite alternate; }
+    @keyframes legwiggle {
+      from { transform: rotate(-6deg); }
+      to   { transform: rotate(6deg); }
+    }
+
     /* ── Scanning line over Taco Tuesday background ── */
     .scan-line {
       position: absolute;
@@ -591,6 +628,7 @@
   <div class="bg-overlay bg-zoo"        id="bg-zoo"></div>
   <div class="bg-overlay bg-kep"        id="bg-kep"></div>
   <div class="bg-overlay bg-pie"        id="bg-pie"></div>
+  <div class="bg-overlay bg-sim"        id="bg-sim"></div>
 
   <!-- ── Top-center live pill ── -->
   <div class="glass panel-pill" id="pill" style="opacity:0">
@@ -708,6 +746,17 @@
       <div class="card-cta">Hear it now →</div>
     </a>
 
+    <!-- Sim Tick -->
+    <a class="proj-card card-sim" data-project="sim"
+       href="https://sim-tick.vercel.app/" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Sim Tick</span>
+        <span class="card-tag">TypeScript · Science</span>
+      </div>
+      <p class="card-desc">An accurate tick lifecycle simulator built from the latest scientific research, with the goal of finding efficient ways to exterminate Lyme disease.</p>
+      <div class="card-cta">Visit site →</div>
+    </a>
+
     <!-- Mandelbrot in Piet -->
     <a class="proj-card card-pie" data-project="pie"
        href="https://github.com/bitflora/piet#llms-as-yak-shavers" target="_blank">
@@ -723,6 +772,9 @@
 
   <!-- ── Center info panel (hover reveal) ── -->
   <div class="glass info-panel" id="info-panel"></div>
+
+  <!-- ── Tick crawlers (Sim Tick) ── -->
+  <div class="tick-crawlers" id="tick-crawlers" aria-hidden="true"></div>
 
   <script>
     const projects = {
@@ -780,6 +832,15 @@
         color:    '#7EC8E3',
         bg:       'pie',
       },
+      sim: {
+        eyebrow:  'Science · Simulation',
+        title:    'Sim Tick',
+        subtitle: 'TypeScript · Science',
+        desc:     'An accurate tick lifecycle simulator built from the latest scientific research. The goal: find efficient ways to exterminate Lyme disease by modeling tick populations under different intervention strategies.',
+        cta:      { href: 'https://sim-tick.vercel.app/', label: 'Visit site', target: '_blank' },
+        color:    '#E54B4B',
+        bg:       'sim',
+      },
       sis: {
         eyebrow:  'Pixel Art · Browser Game',
         title:    'Sisyphus Quest',
@@ -801,9 +862,99 @@
       zoo:  document.getElementById('bg-zoo'),
       kep:  document.getElementById('bg-kep'),
       pie:  document.getElementById('bg-pie'),
+      sim:  document.getElementById('bg-sim'),
     };
 
     let current = null;
+
+    // ── Tick crawlers ──
+    const TICK_COUNT = 50;
+    const TICK_TURN_RATE = 2.2;
+    const tickContainer = document.getElementById('tick-crawlers');
+    const tickSvg = `
+      <svg width="14" height="14" viewBox="-10 -10 20 20" aria-hidden="true">
+        <g class="legs" stroke="#3a2410" stroke-width="0.9" stroke-linecap="round" fill="none">
+          <line x1="-2.5" y1="-3" x2="-7" y2="-5.5" />
+          <line x1="-2.8" y1="-1" x2="-7.5" y2="-2" />
+          <line x1="-2.8" y1="1" x2="-7.5" y2="2" />
+          <line x1="-2.5" y1="3" x2="-7" y2="5.5" />
+          <line x1="2.5" y1="-3" x2="7" y2="-5.5" />
+          <line x1="2.8" y1="-1" x2="7.5" y2="-2" />
+          <line x1="2.8" y1="1" x2="7.5" y2="2" />
+          <line x1="2.5" y1="3" x2="7" y2="5.5" />
+        </g>
+        <ellipse cx="0" cy="1" rx="3.5" ry="4.5" fill="#5a3a1c" />
+        <circle cx="0" cy="-3.5" r="1.6" fill="#3a2410" />
+      </svg>`;
+    const tickEls = [];
+    const tickCrawlers = [];
+    const tickRand = (min, max) => min + Math.random() * (max - min);
+    function wrapAngle(a) {
+      while (a > Math.PI) a -= Math.PI * 2;
+      while (a < -Math.PI) a += Math.PI * 2;
+      return a;
+    }
+    function initTicks() {
+      for (let i = 0; i < TICK_COUNT; i++) {
+        const el = document.createElement('div');
+        el.className = 'tick';
+        el.innerHTML = tickSvg;
+        tickContainer.appendChild(el);
+        tickEls.push(el);
+        const h = tickRand(0, Math.PI * 2);
+        tickCrawlers.push({
+          x: tickRand(0, window.innerWidth),
+          y: tickRand(0, window.innerHeight),
+          heading: h,
+          targetHeading: h,
+          speed: tickRand(8, 22),
+          turnTimer: tickRand(0.5, 2.5),
+        });
+      }
+    }
+    let tickRaf = 0;
+    let tickLastT = 0;
+    let tickViewW = window.innerWidth;
+    let tickViewH = window.innerHeight;
+    window.addEventListener('resize', () => {
+      tickViewW = window.innerWidth;
+      tickViewH = window.innerHeight;
+    }, { passive: true });
+    function tickFrame(t) {
+      const dt = tickLastT ? Math.min(0.05, (t - tickLastT) / 1000) : 0;
+      tickLastT = t;
+      for (let i = 0; i < TICK_COUNT; i++) {
+        const c = tickCrawlers[i];
+        c.turnTimer -= dt;
+        if (c.turnTimer <= 0) {
+          c.targetHeading = c.heading + tickRand(-1.2, 1.2);
+          c.turnTimer = tickRand(0.6, 2.4);
+        }
+        const dh = wrapAngle(c.targetHeading - c.heading);
+        const step = Math.sign(dh) * Math.min(Math.abs(dh), TICK_TURN_RATE * dt);
+        c.heading += step;
+        c.x += Math.cos(c.heading) * c.speed * dt;
+        c.y += Math.sin(c.heading) * c.speed * dt;
+        if (c.x < 0) { c.x = 0; c.heading = Math.PI - c.heading; c.targetHeading = c.heading; }
+        else if (c.x > tickViewW) { c.x = tickViewW; c.heading = Math.PI - c.heading; c.targetHeading = c.heading; }
+        if (c.y < 0) { c.y = 0; c.heading = -c.heading; c.targetHeading = c.heading; }
+        else if (c.y > tickViewH) { c.y = tickViewH; c.heading = -c.heading; c.targetHeading = c.heading; }
+        tickEls[i].style.transform = `translate3d(${c.x}px, ${c.y}px, 0) rotate(${c.heading + Math.PI / 2}rad)`;
+      }
+      tickRaf = requestAnimationFrame(tickFrame);
+    }
+    function startTicks() {
+      if (tickRaf) return;
+      tickContainer.classList.add('active');
+      tickLastT = 0;
+      tickRaf = requestAnimationFrame(tickFrame);
+    }
+    function stopTicks() {
+      tickContainer.classList.remove('active');
+      if (tickRaf) cancelAnimationFrame(tickRaf);
+      tickRaf = 0;
+    }
+    initTicks();
 
     function showProject(key) {
       if (current === key) return;
@@ -813,6 +964,9 @@
       // Swap background overlay
       Object.values(bgMap).forEach(el => el.classList.remove('active'));
       bgMap[p.bg].classList.add('active');
+
+      // Tick crawlers only for Sim Tick
+      if (key === 'sim') startTicks(); else stopTicks();
 
       // Pill only visible for Taco Tuesday
       pill.style.opacity = key === 'taco' ? '1' : '0';
