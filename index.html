@@ -220,10 +220,9 @@
       bottom: 28px;
       width: 360px;
       padding: 0;
-      overflow-y: auto;
-      overscroll-behavior: contain;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .proj-header {
@@ -237,11 +236,12 @@
       display: flex;
       justify-content: space-between;
       flex-shrink: 0;
-      position: sticky;
-      top: 0;
-      background: inherit;
-      backdrop-filter: blur(20px);
-      z-index: 1;
+    }
+
+    .proj-scroll {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     /* ── Project card ── */
@@ -251,7 +251,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 14px 20px 32px;
+      padding: 10px;
       border-bottom: 1px solid var(--glass-border);
       text-decoration: none;
       color: inherit;
@@ -302,7 +302,6 @@
 
     .card-title {
       margin-top: 10px;
-      padding-top: 20px;
       font-size: 13.5px;
       font-weight: 700;
       letter-spacing: -0.015em;
@@ -643,6 +642,7 @@
       <span></span>
     </div>
 
+    <div class="proj-scroll">
     <!-- Solar Taco Tuesday -->
     <div class="proj-card card-taco" data-project="taco">
       <div class="card-top">
@@ -718,6 +718,7 @@
       <p class="card-desc">A Mandelbrot set renderer written in Piet — the esoteric language where programs are images and instructions are colors.</p>
       <div class="card-cta">View on GitHub →</div>
     </a>
+    </div>
   </div>
 
   <!-- ── Center info panel (hover reveal) ── -->
