@@ -22,6 +22,7 @@
       --c-kep:        #E8D87E;
       --c-pie:        #7EC8E3;
       --c-sim:        #E54B4B;
+      --c-ast:        #A8D94E;
     }
 
     html, body {
@@ -379,6 +380,7 @@
     .card-kep  { --c-accent: var(--c-kep); }
     .card-pie  { --c-accent: var(--c-pie); }
     .card-sim  { --c-accent: var(--c-sim); }
+    .card-ast  { --c-accent: var(--c-ast); }
 
     /* Kepler: celestial portrait — warm gold glows on deep space */
     .bg-kep {
@@ -399,6 +401,17 @@
         radial-gradient(ellipse 40% 35% at 78% 18%, rgba(80, 180, 80, 0.50) 0%, transparent 100%),
         radial-gradient(ellipse 30% 30% at 50% 50%, rgba(60, 140, 40, 0.08) 0%, transparent 100%),
         #04100A;
+      background-size: auto, auto, auto, auto, auto;
+    }
+
+    /* AsteriskCraft: Starcraft x Minecraft — creep-lime green on dark moss */
+    .bg-ast {
+      background:
+        url('images/asteriskcraft.png') no-repeat center center,
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(120, 165, 40, 0.90) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(168, 217, 78, 0.48) 0%, transparent 100%),
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(95, 135, 30, 0.10) 0%, transparent 100%),
+        #0A0F04;
       background-size: auto, auto, auto, auto, auto;
     }
 
@@ -629,6 +642,7 @@
   <div class="bg-overlay bg-kep"        id="bg-kep"></div>
   <div class="bg-overlay bg-pie"        id="bg-pie"></div>
   <div class="bg-overlay bg-sim"        id="bg-sim"></div>
+  <div class="bg-overlay bg-ast"        id="bg-ast"></div>
 
   <!-- ── Top-center live pill ── -->
   <div class="glass panel-pill" id="pill" style="opacity:0">
@@ -710,6 +724,17 @@
         <span class="card-tag">Java · Mod</span>
       </div>
       <p class="card-desc">A Minecraft mod that adds new villagers who will admire the creatures you've collected and reward you for a well-built zoo.</p>
+      <div class="card-cta">View on CurseForge →</div>
+    </a>
+
+    <!-- AsteriskCraft -->
+    <a class="proj-card card-ast" data-project="ast"
+       href="https://www.curseforge.com/minecraft/mc-mods/asteriskcraft" target="_blank">
+      <div class="card-top">
+        <span class="card-title">AsteriskCraft</span>
+        <span class="card-tag">Java · Mod</span>
+      </div>
+      <p class="card-desc">A Minecraft mod that brings StarCraft to the Overworld — Terran, Protoss, and Zerg tech, units, and resources rebuilt in blocks.</p>
       <div class="card-cta">View on CurseForge →</div>
     </a>
 
@@ -815,6 +840,15 @@
         color:    '#56C56E',
         bg:       'zoo',
       },
+      ast: {
+        eyebrow:  'Minecraft Mod',
+        title:    'AsteriskCraft',
+        subtitle: 'Java · StarCraft \u00d7 Minecraft',
+        desc:     'A Minecraft mod that brings StarCraft into the Overworld. The three races and their tech trees \u2014 Terran, Protoss, and Zerg \u2014 are rebuilt as blocks, mobs, and resources, so a survival world can be played as an RTS match.',
+        cta:      { href: 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft', label: 'View on CurseForge', target: '_blank' },
+        color:    '#A8D94E',
+        bg:       'ast',
+      },
       kep: {
         eyebrow:  'Astronomy · Music',
         title:    'Kepler\'s Harmony\nof the World',
@@ -864,6 +898,7 @@
       kep:  document.getElementById('bg-kep'),
       pie:  document.getElementById('bg-pie'),
       sim:  document.getElementById('bg-sim'),
+      ast:  document.getElementById('bg-ast'),
     };
 
     let current = null;
