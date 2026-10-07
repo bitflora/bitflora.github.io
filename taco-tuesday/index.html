@@ -121,6 +121,14 @@
       border-radius: 50%;
     }
 
+    /* Bigger tap targets on touch screens */
+    @media (pointer: coarse) {
+      .planet::after {
+        width: max(100%, 44px);
+        height: max(100%, 44px);
+      }
+    }
+
     .planet:hover {
       filter: brightness(1.4) drop-shadow(0 0 7px rgba(255, 255, 255, 0.55));
     }
@@ -373,7 +381,7 @@ const PLANETS = [
     bg: 'radial-gradient(circle at 35% 30%, #d8d8d8, #9a9a9a 55%, #5a5a5a)',
   },
   {
-    name: 'Venus', solarDayHours: 2802.0, useSol: false,
+    name: 'Venus', solarDayHours: 2802.0, useSol: false, retrograde: true,
     orbitalDays: 224.70, orbitR: 110, size: 10 * PLANET_SIZE_SCALE,
     img: 'images/venus.jpg',
     bg: 'radial-gradient(circle at 35% 30%, #f5e6c8, #d4a84b 50%, #8a681e)',
@@ -431,7 +439,7 @@ const PLANETS = [
     ].join(','),
   },
   {
-    name: 'Uranus', solarDayHours: 17.2400, useSol: false,
+    name: 'Uranus', solarDayHours: 17.2400, useSol: false, retrograde: true,
     orbitalDays: 30688.5, orbitR: 358, size: 14 * PLANET_SIZE_SCALE,
     img: 'images/uranus.jpg',
     bg: [
@@ -467,6 +475,8 @@ const PLANETS = [
 // Initialized to J2000 (all Saturday) matching the default datepicker value.
 planetEpochs = PLANETS.map(() => J2000_UNIX);
 
+// All timestamps are local wall-clock seconds (see localNowSecs), so J2000_UNIX
+// and dateSecs both mean midnight in the viewer's timezone.
 function alignEpochsToDate(dateSecs) {
   const earthSolarDaySecs = PLANETS[2].solarDayHours * 3600;
   const earthWeekPos = ((dateSecs - J2000_UNIX) / earthSolarDaySecs % 7 + 7) % 7;
@@ -481,6 +491,11 @@ const MS_PER_ORBD       = MERCURY_MS / PLANETS[0].orbitalDays;
 let   speedMultiplier   = 5;     // controlled by #speed-slider
 
 // ── Taco Tuesday logic (ported from Rust) ────────────────────────────────────
+// Unix seconds shifted into the viewer's timezone, so Earth's weekday matches their calendar.
+function localNowSecs() {
+  return Date.now() / 1000 - new Date().getTimezoneOffset() * 60;
+}
+
 function computeTaco(planet, nowSecs, epoch) {
   const solarDaySecs = planet.solarDayHours * 3600;
   const weekPos      = ((nowSecs - epoch) / solarDaySecs % 7 + 7) % 7;
@@ -620,12 +635,15 @@ const planetNodes = PLANETS.map((p, i) => {
   planet.addEventListener('mouseenter', e => showTip(e, p, i));
   planet.addEventListener('mousemove',  e => moveTip(e));
   planet.addEventListener('mouseleave', hideTip);
+  // Tap support for touch screens (no hover)
+  planet.addEventListener('click', e => { e.stopPropagation(); showTip(e, p, i); });
 
   // px per ms for one full rotation (capped so slow rotators are still visible)
   const spinDurMs = Math.max(3000, Math.min(60000, p.solarDayHours / 24 * 8000));
-  const spinPxPerMs = p.img ? p.size / spinDurMs : 0;
+  const spinDir = p.retrograde ? -1 : 1;
+  const spinPxPerMs = p.img ? spinDir * p.size / spinDurMs : 0;
 
-  return { anchor, planet, taco, burst, initialAngle, p, spinPxPerMs, rotOffset: 0 };
+  return { anchor, planet, taco, burst, initialAngle, p, spinPxPerMs, rotOffset: 0, isTuesday: null };
 });
 
 // ── Animation loop ────────────────────────────────────────────────────────────
@@ -641,7 +659,7 @@ function frame(now) {
   const dt = now - lastFrameTime;
   lastFrameTime    = now;
   virtualElapsed  += dt * speedMultiplier;
-  const nowSecs    = Date.now() / 1000;
+  const nowSecs    = localNowSecs();
 
   sunRotOffset = (sunRotOffset + dt * speedMultiplier * (SUN_SIZE * 2) / SUN_DUR_MS) % (SUN_SIZE * 2);
   sunEl.style.backgroundPosition = `${-sunRotOffset}px 50%`;
@@ -662,12 +680,15 @@ function frame(now) {
 
     const { isTuesday } = computeTaco(p, nowSecs, planetEpochs[i]);
 
-    taco.style.display     = isTuesday ? 'block' : 'none';
-    planet.style.boxShadow = isTuesday
-      ? 'inset -2px -2px 5px rgba(0,0,0,0.45), 0 0 12px 4px rgba(255, 200, 0, 0.65)'
-      : 'inset -2px -2px 5px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.55)';
-
-    burst.style.display = isTuesday ? 'block' : 'none';
+    // Only touch styles when the Tuesday state flips
+    if (isTuesday !== node.isTuesday) {
+      node.isTuesday = isTuesday;
+      taco.style.display     = isTuesday ? 'block' : 'none';
+      planet.style.boxShadow = isTuesday
+        ? 'inset -2px -2px 5px rgba(0,0,0,0.45), 0 0 12px 4px rgba(255, 200, 0, 0.65)'
+        : 'inset -2px -2px 5px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.55)';
+      burst.style.display = isTuesday ? 'block' : 'none';
+    }
   });
 
   requestAnimationFrame(frame);
@@ -680,7 +701,7 @@ const tooltip = document.getElementById('tooltip');
 const ttInner = document.getElementById('tt-inner');
 
 function showTip(e, p, idx) {
-  const nowSecs = Date.now() / 1000;
+  const nowSecs = localNowSecs();
   const { isTuesday, secsUntil, currentDay, solarDaySecs } = computeTaco(p, nowSecs, planetEpochs[idx]);
   const dayLabel = DAY_NAMES[currentDay];
   const unit     = p.useSol ? 'Sol' : 'Day';
@@ -727,24 +748,41 @@ function hideTip() {
   tooltip.classList.remove('show');
 }
 
+// Tapping anywhere off a planet dismisses the tooltip (planet clicks stop propagation)
+document.addEventListener('click', hideTip);
+
 // ── Control Panel ─────────────────────────────────────────────────────────────
 const PLUTO_IDX = 8;
 
-document.getElementById('pluto-planet').addEventListener('change', function () {
-  const show = this.checked;
+const plutoInput = document.getElementById('pluto-planet');
+const speedInput = document.getElementById('speed-slider');
+const epochInput = document.getElementById('epoch-date');
+
+function applyPluto() {
+  const show = plutoInput.checked;
   planetNodes[PLUTO_IDX].anchor.style.display = show ? '' : 'none';
   orbitRings[PLUTO_IDX].style.display         = show ? '' : 'none';
-});
+}
 
-document.getElementById('speed-slider').addEventListener('input', function () {
-  speedMultiplier = parseInt(this.value);  // 1–7 maps directly to 1x–7x
-});
+function applySpeed() {
+  speedMultiplier = parseInt(speedInput.value, 10);  // 1–10 maps directly to 1x–10x
+}
 
-document.getElementById('epoch-date').addEventListener('change', function () {
-  if (!this.value) return;
-  const ms = Date.parse(this.value + 'T00:00:00Z');
+function applyEpoch() {
+  if (!epochInput.value) return;
+  // Parsed as UTC on purpose: it's a wall-clock midnight, matching localNowSecs()
+  const ms = Date.parse(epochInput.value + 'T00:00:00Z');
   if (!isNaN(ms)) alignEpochsToDate(ms / 1000);
-});
+}
+
+plutoInput.addEventListener('change', applyPluto);
+speedInput.addEventListener('input',  applySpeed);
+epochInput.addEventListener('change', applyEpoch);
+
+// Browsers (notably Firefox) restore form values on reload — sync state to them
+applyPluto();
+applySpeed();
+applyEpoch();
 </script>
 
 </body>
