@@ -23,6 +23,7 @@
       --c-pie:        #7EC8E3;
       --c-sim:        #E54B4B;
       --c-ast:        #A8D94E;
+      --c-euc:        #4FD1C5;
     }
 
     html, body {
@@ -381,6 +382,7 @@
     .card-pie  { --c-accent: var(--c-pie); }
     .card-sim  { --c-accent: var(--c-sim); }
     .card-ast  { --c-accent: var(--c-ast); }
+    .card-euc  { --c-accent: var(--c-euc); }
 
     /* Kepler: celestial portrait — warm gold glows on deep space */
     .bg-kep {
@@ -425,6 +427,17 @@
         #0A0306;
       background-size: 220px 220px, auto, auto, cover, auto;
       image-rendering: pixelated;
+    }
+
+    /* Euclid: Elements I.1 construction on deep teal */
+    .bg-euc {
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cg fill='none' stroke='rgba(79,209,197,0.55)' stroke-width='1.2'%3E%3Ccircle cx='160' cy='170' r='80'/%3E%3Ccircle cx='240' cy='170' r='80'/%3E%3Cpath d='M160 170 L240 170 L200 100.7 Z' stroke='rgba(244,242,238,0.8)' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E") no-repeat center center,
+        radial-gradient(ellipse 50% 65% at 12% 72%, rgba(30, 140, 130, 0.90) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 35% at 78% 18%, rgba(79, 209, 197, 0.45) 0%, transparent 100%),
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(40, 120, 110, 0.10) 0%, transparent 100%),
+        #030B0B;
+      background-size: min(70vw, 640px) auto, auto, auto, auto, auto;
     }
 
     /* Sim Tick: deep crimson medical/lab feel */
@@ -643,6 +656,7 @@
   <div class="bg-overlay bg-pie"        id="bg-pie"></div>
   <div class="bg-overlay bg-sim"        id="bg-sim"></div>
   <div class="bg-overlay bg-ast"        id="bg-ast"></div>
+  <div class="bg-overlay bg-euc"        id="bg-euc"></div>
 
   <!-- ── Top-center live pill ── -->
   <div class="glass panel-pill" id="pill" style="opacity:0">
@@ -793,6 +807,17 @@
       <div class="card-cta">Read the text →</div>
     </a>
 
+    <!-- Euclid Companion -->
+    <a class="proj-card card-euc" data-project="euc"
+       href="https://euclids-elements-lektor.vercel.app/" target="_blank">
+      <div class="card-top">
+        <span class="card-title">Euclid Companion</span>
+        <span class="card-tag">AI · Education</span>
+      </div>
+      <p class="card-desc">A reading companion for Euclid's Elements in Heath's translation, with explanations available on demand.</p>
+      <div class="card-cta">Read the text →</div>
+    </a>
+
     </div>
   </div>
 
@@ -830,6 +855,15 @@
         cta:      { href: 'https://galileo-two-new-sciences.vercel.app/', label: 'Read the text', target: '_blank' },
         color:    '#FFA050',
         bg:       'gal',
+      },
+      euc: {
+        eyebrow:  'AI · Historical Text',
+        title:    'Euclid Companion',
+        subtitle: 'Elements · Heath Translation · LLM-assisted learning',
+        desc:     'A reading companion for Euclid\'s Elements, the foundational text of geometry, in Sir Thomas Heath\'s classic translation. Explanations are available on demand for each proposition, making the reasoning easier to follow for a modern reader.',
+        cta:      { href: 'https://euclids-elements-lektor.vercel.app/', label: 'Read the text', target: '_blank' },
+        color:    '#4FD1C5',
+        bg:       'euc',
       },
       zoo: {
         eyebrow:  'Minecraft Mod',
@@ -899,6 +933,7 @@
       pie:  document.getElementById('bg-pie'),
       sim:  document.getElementById('bg-sim'),
       ast:  document.getElementById('bg-ast'),
+      euc:  document.getElementById('bg-euc'),
     };
 
     let current = null;
