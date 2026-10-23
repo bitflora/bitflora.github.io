@@ -89,11 +89,23 @@
     .marginalia { font-size: 12.5px; font-style: italic; color: var(--faded); line-height: 1.35; border-left: 1px solid #6b563855; padding-left: 10px; }
     .marginalia .hand { font-size: 14px; color: var(--marginal); transform: rotate(-3deg); display: block; margin-top: 14px; }
     .chapter .plate { margin: 16px auto 0; display: block; max-height: 130px; max-width: 70%; filter: sepia(0.7) contrast(1.05); mix-blend-mode: multiply; border: 1px solid var(--ink); padding: 3px; }
+    /* Pixel art (the Piet program) keeps its true colours and hard edges */
+    .chapter .plate.pixel { height: 130px; filter: none; mix-blend-mode: normal; image-rendering: pixelated; }
     /* A live plate: the orrery itself, shrunk onto the page */
     .chapter .plate-live { margin: 16px auto 0; width: 82%; aspect-ratio: 16 / 9; border: 1px solid var(--ink); padding: 3px; background: #05060c; }
     .chapter .plate-live .viewport { width: 100%; height: 100%; overflow: hidden; position: relative; }
     .chapter .plate-live iframe { position: absolute; top: 0; left: 0; width: 250%; height: 250%; border: 0; transform: scale(0.4); transform-origin: 0 0; }
     .chapter .plate-cap { text-align: center; font-size: 12px; font-style: italic; color: var(--faded); margin-top: 4px; }
+    .chapter .tick { position: absolute; top: 0; left: 0; width: 22px; height: 22px; margin: -11px 0 0 -11px; cursor: pointer; z-index: 2; }
+    .chapter .tick svg { width: 100%; height: 100%; overflow: visible; transition: transform .3s, opacity .3s; }
+    .chapter .tick .leg { fill: none; stroke: var(--ink); stroke-width: 0.9; stroke-linejoin: round; stroke-linecap: round; }
+    .chapter .tick .body { fill: #6b3f1f; stroke: var(--ink); stroke-width: 0.6; }
+    .chapter .tick .scutum, .chapter .tick .mouth { fill: var(--ink); }
+    .chapter .tick.walking .leg.a { animation: skitter .16s ease-in-out infinite alternate; }
+    .chapter .tick.walking .leg.b { animation: skitter .16s ease-in-out infinite alternate-reverse; }
+    @keyframes skitter { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+    .chapter .tick.squashed { pointer-events: none; }
+    .chapter .tick.squashed svg { transform: scale(1.2, 0.25); opacity: 0; }
     .chapter .cta { display: block; width: fit-content; margin: 14px auto 0; font-family: 'IM Fell English SC', serif; letter-spacing: 0.15em; color: var(--rubric); text-decoration: none; font-size: 15px; }
     .chapter .cta:hover { text-decoration: underline; }
     .finis { text-align: center; font-size: 18px; margin-top: 8px; color: var(--faded); }
@@ -197,6 +209,7 @@
     .toc [data-book="II"]  { --key: #ffcc66; }
     .toc [data-book="III"] { --key: #9999ff; }
     .toc [data-book="IV"]  { --key: #cc99cc; }
+    .toc [data-book="A"]   { --key: #66ccff; }
     body[data-theme="tricorder"] .imprint { margin-top: 12px; text-align: left; font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; color: #6f7680; }
     body[data-theme="tricorder"] .imprint a { color: #9aa0a8; }
 
@@ -360,18 +373,14 @@
       <div class="the">The Collected Works</div>
       <div class="of">of</div>
       <div class="author">Tim Jasko</div>
-      <p class="desc">Who readeth old books &amp; buildeth new things; who cultivateth software, but also fruit trees.</p>
+      <p class="desc">I read old books &amp; build new things; I cultivate software, but also fruit trees.</p>
       <div class="rule"></div>
-      <h1>In Four Books</h1>
       <div class="device-lcd" id="device-lcd" aria-hidden="true"></div>
 
       <nav class="toc" id="toc" aria-label="Contents"></nav>
 
       <div class="imprint">
-        Printed for the Author, and sold at
-        <a href="https://github.com/bitflora" target="_blank">GitHub</a>,
-        <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn</a>, &amp;
-        <a href="mailto:tim.jasko@gmail.com">by Post</a><br>
+        Printed for the Author<br>
         MMXXVI
       </div>
       <span class="folio">i</span>
@@ -385,46 +394,51 @@
 
   <script>
     const books = [
-      { n: 'I', title: 'Of Old Books', gloss: 'wherein ancient texts are made new', chapters: [
-        { slug: 'patristics', t: 'Of the Fathers of the Church', short: 'Patristics', sub: 'Four hundred texts, eight hundred thousand cross-references', img: 'images/bible-hyperlink.png',
-          p: 'A three-stage pipeline, aided by artificial intelligence, that ingests, processes, and indexes the writings of the early Church Fathers. Some four hundred texts spanning two thousand years were parsed, and above eight hundred thousand references drawn out and correlated, then bound into a site for easy navigation and lookup.',
+      { n: 'I', title: 'Of Books', gloss: 'wherein ancient texts are made new', chapters: [
+        { slug: 'galileo', t: 'Two New Sciences', short: 'Galileo: Two New Sciences', sub: 'Being Galileo’s last book, Anno 1638, newly annotated',
+        p: 'Galileo\'s final published work introduced the world to many important new areas of physics. However, it is difficult to read because he lacked the modern mathematical notation that we now take for granted. This showcases using AI to supplement education, by providing inline modern notation, figures, and commentary on a difficult historical text.',
+        m: ['An experiment in AI as tutor.'], hand: 'I have discovered a truly marvelous proof that P=NP, which this margin is too narrow to contain.', cta: ['Read the Text', 'https://galileo-two-new-sciences.vercel.app/'] },
+        { slug: 'euclid', t: 'Euclid\'s Elements', short: 'Euclid: Elements', sub: 'In Sir Thomas Heath’s translation, with a Companion',
+        p: 'A reading companion for the foundational text of geometry. For each proposition an explanation is to be had on demand, so that the modern reader may follow the reasoning without losing the thread.',
+        m: ['Q.E.D., but gentler.'], hand: '', cta: ['Read the Text', 'https://euclids-elements-lektor.vercel.app/'] },
+        { slug: 'patristics', t: 'Fathers of the Church', short: 'Patristics', sub: 'Four hundred texts, eight hundred thousand cross-references', img: 'images/bible-hyperlink.png',
+          p: 'A three-stage AI pipeline that ingests, processes, and semantically indexes writings from the early Church Fathers. This application was built using a combination of Go, Python, SQLite and JavaScript. 400 texts from the past two thousand years were parsed and over 800,000 references were extracted then correlated. Finally these were built into a site that allows easy navigation, lookup, and visualizations of the data.',
           m: ['Go, Python, SQLite, and JavaScript.'], hand: 'Tolle, lege.', cta: ['Visit the Site', 'https://patristics-site.vercel.app/'] },
-        { slug: 'galileo', t: 'Of Two New Sciences', short: 'Galileo', sub: 'Being Galileo’s last book, Anno 1638, newly annotated',
-          p: 'Galileo’s final published work opened whole new provinces of physics, yet it is hard reading, for he lacked the mathematical notation we now take for granted. Here modern notation, figures, and commentary are supplied inline, that a student might follow him.',
-          m: ['An experiment in AI as tutor.'], hand: 'He would have liked LaTeX.', cta: ['Read the Text', 'https://galileo-two-new-sciences.vercel.app/'] },
-        { slug: 'euclid', t: 'Of the Elements of Euclid', short: 'Euclid', sub: 'In Sir Thomas Heath’s translation, with a Companion',
-          p: 'A reading companion for the foundational text of geometry. For each proposition an explanation is to be had on demand, so that the modern reader may follow the reasoning without losing the thread.',
-          m: ['Q.E.D., but gentler.'], hand: '', cta: ['Read the Text', 'https://euclids-elements-lektor.vercel.app/'] },
       ] },
-      { n: 'II', title: 'Of the Heavens', gloss: 'wherein the planets keep time, & sing', theme: 'tricorder', chapters: [
-        { slug: 'kepler', t: 'Of the Harmony of the World', short: 'Kepler', sub: 'Harmonices Mundi, Anno 1619, made audible', img: 'images/kepler.jpg',
+      { n: 'II', title: 'Of the Heavens', gloss: 'encompassing space, music, and tacos', theme: 'tricorder', chapters: [
+        { slug: 'kepler', t: 'Of the Harmony of the World', short: 'Kepler\'s Music of the Spheres', sub: 'Harmonices Mundi, Anno 1619, made audible', img: 'images/kepler.jpg',
           p: 'In this critical work Johannes Kepler described the planets as making music, each singing according to its motion. Now, at last, we may hear what that would have sounded like.',
           m: ['Bring headphones.'], hand: 'Earth sings mi-fa-mi.', cta: ['Hear It Now', 'https://kepler-harmonies.vercel.app/'] },
         { slug: 'taco', t: 'Of Tacos upon the Planets', short: 'Solar Taco Tuesday', sub: 'An orrery for a weekly feast', live: 'taco-tuesday/index.html',
-          p: 'Every Tuesday, somewhere in the solar system, it is Taco Tuesday. Orbital mechanics are computed across all nine planets, from Mercury’s year of eighty-eight days to Pluto’s of two hundred forty-eight years.',
-          m: ['Pluto is a planet here.'], hand: 'Disputed.', cta: ['Behold the Orrery', 'taco-tuesday/index.html'] },
+          p: 'Suppose you are an interstellar traveler. Suppose you are hungry. Wouldn’t it be handy to know where it is currently Taco Tuesday? Use this helpful tool!',
+          m: ['Pluto is a planet here.'], hand: 'Disputed.', cta: ['Behold your solar system', 'taco-tuesday/index.html'] },
       ] },
       { n: 'III', title: 'Of Blocks', gloss: 'being modifications to the game Minecraft', theme: 'blocks', chapters: [
+        { slug: 'asteriskcraft', t: 'Of the Three Races of the Stars', short: 'AsteriskCraft', sub: 'StarCraft brought into the Overworld', img: 'images/asteriskcraft.png',
+          p: 'A Minecraft mod that brings StarCraft into the Overworld. The three races and their tech trees — Terran, Protoss, and Zerg — are rebuilt as blocks, mobs, and resources, so a survival world can be played as an RTS match.',
+          m: ['You must construct additional pylons.'], hand: 'GG', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
         { slug: 'zoogoer', t: 'Of Zoos & Their Admirers', short: 'Zoogoer', sub: 'A modification, written in Java', img: 'images/zoogoer.png',
-          p: 'New villagers are introduced to the world, who come to admire the creatures you have collected, and who reward the keeper of a well-built zoo.',
+          p: 'A Minecraft mod that adds new villagers who will admire the creatures you\'ve collected and reward you for a well-built zoo.',
           m: ['Feed the animals.'], hand: '', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
         { slug: 'ultimate-zookeeper', t: 'Of the Penultimate Zookeeper', short: 'The Ultimate Zookeeper', sub: 'A modpack, for Forge 1.20.1', img: 'images/ultimate-zookeeper.png',
-          p: 'Beginning with a small farm, the player collects ever more exotic beasts, unto the resurrection of dinosaurs from their fossils. A well-kept zoo draws Zoogoers, whose emeralds fund further research, and the animals themselves grant new abilities, all in service of bringing back the Ultimate Zookeeper.',
+          p: 'A Minecraft challenge pack. Building from a small farm, the player collects ever more exotic beasts, up to the resurrection of dinosaurs from their fossils. A well-kept zoo draws Zoogoers, whose emeralds fund further research, and the animals themselves grant new abilities, all in service of bringing back the Ultimate Zookeeper.',
           m: ['Rats as workers.', 'Dinosaurs from DNA.'], hand: 'Crikey!', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/modpacks/the-ultimate-zookeeper'] },
-        { slug: 'asteriskcraft', t: 'Of the Three Races of the Stars', short: 'AsteriskCraft', sub: 'StarCraft brought into the Overworld', img: 'images/asteriskcraft.png',
-          p: 'Terran, Protoss, and Zerg, together with their trees of technology, are rebuilt as blocks, mobs, and resources, so that a survival world may be played as a match of real-time strategy.',
-          m: ['You must construct additional pylons.'], hand: 'GG', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
       ] },
       { n: 'IV', title: 'Of Divers Curiosities', gloss: 'which resist all classification', chapters: [
-        { slug: 'piet', t: 'Of a Painting that Computes', short: 'Piet', sub: 'The Mandelbrot set, writ in colour', img: 'images/mandelbrot.jpg',
-          p: 'Piet is a language wherein programs are abstract paintings and instructions are encoded as changes of colour between blocks. In painting this one, the author made trial of LLMs as builders of tools, that he might keep to the central task.',
-          m: ['Rust & Python for the tools.'], hand: 'On yak-shaving.', cta: ['Read the Retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
+        { slug: 'piet', t: 'A Painting that Computes', short: 'Mandelbrot in Piet', sub: 'The Mandelbrot set, writ in colour', img: 'images/pretty.png', pixel: true,
+          p: 'Piet is an esoteric programming language where programs are abstract paintings and instructions are encoded as color transitions between blocks. In writing the displayed program, I explored the utility of LLMs in building tools that let a developer focus on the central task.',
+          m: ['Sort of a Quine.'], hand: 'On yak-shaving.', cta: ['Read the Retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
         { slug: 'sim-tick', t: 'Of the Tick, & How to Be Rid of It', short: 'Sim Tick', sub: 'A simulation drawn from the latest research',
-          p: 'An accurate simulator of the life of the tick, built upon recent science, whose purpose is to find efficient means of exterminating the Lyme disease by modelling tick populations under divers interventions.',
-          m: ['TypeScript.'], hand: 'Check your ankles.', cta: ['Visit the Site', 'https://sim-tick.vercel.app/'] },
+          p: 'An accurate tick lifecycle simulator built from the latest scientific research. The goal: find efficient ways to exterminate Lyme disease by modeling tick populations under different intervention strategies.',
+          m: ['TypeScript.'], hand: 'Check your ankles.', cta: ['Visit the Site', 'https://sim-tick.vercel.app/'], ticks: 3 },
         { slug: 'sisyphus', t: 'Of Sisyphus & His Stone', short: 'Sisyphus Quest', sub: 'A game in the manner of pixels', img: 'images/sisyphus-quest.gif',
-          p: 'A simple game after the myth of Sisyphus. Move right to push the boulder up the hill. Should you reach the top, you win.',
+          p: 'A simple JavaScript game inspired by the myth of Sisyphus. Move Right to push the boulder up the hill. If you reach the top, you win!',
           m: ['Vue & TypeScript.'], hand: 'One must imagine him happy.', cta: ['Play Now', 'sisyphus-quest/'] },
+      ] },
+      { title: 'Of the Author', gloss: '& where he may be found', chapters: [
+        { short: 'GitHub', href: 'https://github.com/bitflora' },
+        { short: 'LinkedIn', href: 'https://www.linkedin.com/in/timothy-jasko-4536816/' },
+        { short: 'Email', href: 'mailto:tim.jasko@gmail.com' },
       ] },
     ];
 
@@ -442,16 +456,27 @@
     books.forEach(b => {
       const h = document.createElement('div');
       h.className = 'bk';
-      h.dataset.book = b.n;
-      h.innerHTML = `Book ${b.n}. ${b.title}<i>, ${b.gloss}</i>`;
+      b.head = b.n ? `Book ${b.n}` : 'Appendix';
+      h.dataset.book = b.n || 'A';
+      h.innerHTML = `${b.head}. ${b.title}<i>, ${b.gloss}</i>`;
       toc.appendChild(h);
       b.chapters.forEach((c, i) => {
+        // An entry with `href` leads out of the book rather than to a chapter
+        if (c.href) {
+          const a = document.createElement('a');
+          a.href = c.href;
+          a.target = '_blank';
+          a.dataset.book = b.n || 'A';
+          a.innerHTML = `<span class="t">${c.short}</span><span class="lead"></span><span>↗</span>`;
+          toc.appendChild(a);
+          return;
+        }
         c.book = b;
         c.idx = i;
         c.page = flat.length * PAGES_PER_CHAPTER + 1;
         const a = document.createElement('a');
         a.href = '#' + c.slug;
-        a.dataset.book = b.n;
+        a.dataset.book = b.n || 'A';
         a.innerHTML = `<span class="t">${c.short}</span><span class="lead"></span><span>${c.page}</span>`;
         toc.appendChild(a);
         c.link = a;
@@ -466,10 +491,62 @@
         return `<div class="plate-live"><div class="viewport"><iframe src="${c.live}" title="${c.short}, running live" scrolling="no" loading="lazy"></iframe></div></div>
           <div class="plate-cap">Fig. The orrery, in motion.</div>`;
       }
-      return c.img ? `<img class="plate" src="${c.img}" alt="">` : '';
+      return c.img ? `<img class="plate${c.pixel ? ' pixel' : ''}" src="${c.img}" alt="">` : '';
     }
 
     const themeOf = c => c.book.theme || 'book';
+
+    // Sim Tick: a few ticks wander the page, and a click is one means of being rid of them
+    const tickSvg = (() => {
+      // [start, knee, foot] for each left leg; the right side mirrors it. Head points up.
+      const legs = [[-3, -2.5, -7, -6, -8, -10], [-4, -0.5, -8, -2, -11, -1], [-4, 2, -8, 3, -11, 6], [-3, 4.5, -6, 7, -8, 11]];
+      const path = ([sx, sy, kx, ky, ex, ey], m, gait) => `<path class="leg ${gait}" d="M${sx * m} ${sy} L${kx * m} ${ky} L${ex * m} ${ey}"/>`;
+      return `<svg viewBox="-12 -12 24 24" aria-hidden="true">
+        ${legs.map((l, i) => path(l, 1, i % 2 ? 'a' : 'b') + path(l, -1, i % 2 ? 'b' : 'a')).join('')}
+        <path class="mouth" d="M-1.6 -3.5 L0 -8.5 L1.6 -3.5Z"/>
+        <ellipse class="body" cy="2.5" rx="4.6" ry="6"/>
+        <ellipse class="scutum" cy="-1" rx="3.2" ry="2.8"/></svg>`;
+    })();
+
+    function spawnTicks(n) {
+      const W = () => chapterEl.clientWidth, H = () => chapterEl.clientHeight, PAD = 16;
+      const ticks = Array.from({ length: n }, () => {
+        const el = document.createElement('div');
+        el.className = 'tick';
+        el.innerHTML = tickSvg;
+        el.addEventListener('click', () => el.classList.add('squashed'), { once: true });
+        chapterEl.appendChild(el);
+        return { el, x: PAD + Math.random() * (W() - 2 * PAD), y: PAD + Math.random() * (H() - 2 * PAD),
+                 heading: Math.random() * 2 * Math.PI, speed: 14 + Math.random() * 10, restUntil: 0 };
+      });
+      const place = t => t.el.style.transform = `translate(${t.x}px, ${t.y}px) rotate(${t.heading + Math.PI / 2}rad)`;
+      ticks.forEach(place);
+      if (calm.matches) return;
+
+      let last = performance.now();
+      requestAnimationFrame(function step(now) {
+        const live = ticks.filter(t => t.el.isConnected && !t.el.classList.contains('squashed'));
+        if (!live.length) return; // page re-rendered, or all dispatched
+        const dt = Math.min((now - last) / 1000, 0.1);
+        last = now;
+        live.forEach(t => {
+          const resting = now < t.restUntil;
+          t.el.classList.toggle('walking', !resting);
+          if (resting) return;
+          if (Math.random() < dt * 0.25) { t.restUntil = now + 600 + Math.random() * 2000; return; }
+          t.heading += (Math.random() - 0.5) * 6 * dt;
+          // Near an edge, bend back toward the middle of the page
+          if (t.x < PAD || t.x > W() - PAD || t.y < PAD || t.y > H() - PAD) {
+            const home = Math.atan2(H() / 2 - t.y, W() / 2 - t.x);
+            t.heading += Math.sin(home - t.heading) * 4 * dt;
+          }
+          t.x += Math.cos(t.heading) * t.speed * dt;
+          t.y += Math.sin(t.heading) * t.speed * dt;
+          place(t);
+        });
+        requestAnimationFrame(step);
+      });
+    }
 
     // A tiny inline pixel arrow for the Minecraft page-turn buttons
     const mcArrow = '<svg viewBox="0 0 18 10" shape-rendering="crispEdges"><polygon points="0,3 10,3 10,0 18,5 10,10 10,7 0,7"/></svg>';
@@ -481,7 +558,7 @@
 
     const templates = {
       book: c => `
-        <div class="running"><span>Book ${c.book.n}</span><span>${c.book.title.replace('Of ', '')}</span></div>
+        <div class="running"><span>${c.book.head}</span><span>${c.book.title.replace('Of ', '')}</span></div>
         <div class="num">Chapter ${roman(c.idx)}</div>
         <h2>${c.t}</h2>
         <div class="sub">${c.sub}</div>
@@ -530,6 +607,7 @@
     function render(c) {
       flat.forEach(x => x.link.setAttribute('aria-current', x === c));
       chapterEl.innerHTML = templates[themeOf(c)](c);
+      if (c.ticks) spawnTicks(c.ticks);
       chapterEl.querySelector('.plate-live iframe')?.addEventListener('load', e => {
         // At plate size the orrery's settings panel would cover half the figure
         try {

@@ -20,7 +20,7 @@ npx serve
 
 The site is styled as a 17th-century book, opened to a two-page spread (based on `design/mockups/mockup-q-frontispiece.html`).
 
-- **Left page** — title page ("The Collected Works of Tim Jasko … In Four Books"), a table of contents built from the `books` data, and the imprint holding the GitHub / LinkedIn / email links.
+- **Left page** — title page ("The Collected Works of Tim Jasko … In Four Books"), a table of contents built from the `books` data, and a short imprint.
 - **Right page** (`#chapter`) — the selected project, rendered as a chapter: running head, drop cap, marginalia, a plate image, and a ☞ call-to-action link.
 - **`.leaf`** — the page-turn animation. On a chapter change the outgoing page is copied onto the leaf, which rotates over while the new chapter renders underneath. Skipped under `prefers-reduced-motion` and on narrow screens, where the spread collapses to one column.
 
@@ -39,7 +39,7 @@ A book may set `theme`; while one of its chapters is open, `body[data-theme]` re
 
 ### Project Data
 
-All projects live in the `books` array in the `<script>` block. Each book has `n`, `title`, `gloss`, and `chapters`; each chapter has `slug`, `t` (chapter title), `short` (TOC label), `sub`, `p` (body), `m` (marginal notes), `hand` (handwritten note), `cta` (`[label, href]`), and either `img` or `live`.
+All projects live in the `books` array in the `<script>` block. Each book has `n`, `title`, `gloss`, and `chapters`; each chapter has `slug`, `t` (chapter title), `short` (TOC label), `sub`, `p` (body), `m` (marginal notes), `hand` (handwritten note), `cta` (`[label, href]`), and either `img` or `live`. Optional `pixel: true` shows the `img` unfiltered and pixelated (the Piet program). A book without `n` is unnumbered and headed "Appendix" (`b.head`). A TOC entry with `href` (just `short` + `href`) is an external link, not a chapter: it opens in a new tab and takes no page number; the contact section works this way. Optional `ticks: n` sets n ticks crawling over the chapter page (click one to squash it); skipped motion under `prefers-reduced-motion`.
 
 | Book | Title                  | Chapters                              |
 |------|------------------------|---------------------------------------|
@@ -47,6 +47,7 @@ All projects live in the `books` array in the `<script>` block. Each book has `n
 | II   | Of the Heavens         | Kepler, Solar Taco Tuesday            |
 | III  | Of Blocks              | Zoogoer, Ultimate Zookeeper, AsteriskCraft (Minecraft) |
 | IV   | Of Divers Curiosities  | Piet, Sim Tick, Sisyphus Quest        |
+| —    | Of the Author          | GitHub, LinkedIn, By Post (external links) |
 
 ## Design Assets
 
