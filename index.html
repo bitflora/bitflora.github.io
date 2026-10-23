@@ -7,7 +7,7 @@
   <meta name="description" content="The collected works of Tim Jasko, who reads old books and builds new things.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=UnifrakturMaguntia&family=Antonio:wght@400;600&family=Share+Tech+Mono&family=Pixelify+Sans&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -120,6 +120,226 @@
 
     .ribbon { position: absolute; top: -6px; left: calc(50% + 30px); width: 18px; height: 70px; background: var(--rubric); z-index: 6; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%); box-shadow: 0 2px 4px #0006; }
 
+    /* ══════════════════════════════════════════════════════════════
+       Themes. A book may set `theme`; body[data-theme] restyles the
+       whole spread while one of its chapters is open.
+       ══════════════════════════════════════════════════════════════ */
+    .book { z-index: 1; }
+    body::before, body::after { /* per-theme backdrops, crossfaded */
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      opacity: 0; transition: opacity 0.5s;
+    }
+    .book.morphing { animation: morph 0.45s ease-out; }
+    @keyframes morph { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+    .device-head, .device-lcd, .mc-done { display: none; }
+
+    /* ── Of the Heavens: a tricorder ── */
+    body::after {
+      background:
+        radial-gradient(ellipse at 50% 45%, #1b2638, #05070b 75%),
+        #05070b;
+    }
+    body[data-theme="tricorder"]::after { opacity: 1; }
+    body[data-theme="tricorder"] .book {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 36px; padding: 22px;
+      border-radius: 28px;
+      background: linear-gradient(165deg, #575b62, #33363b 35%, #1f2124 80%);
+      box-shadow: inset 0 2px 0 #ffffff26, inset 0 -3px 0 #0009, 0 0 0 2px #0c0c0e;
+    }
+    body[data-theme="tricorder"] .ribbon { /* the spine becomes the hinge */
+      top: 8%; height: 84%; left: calc(50% - 8px); width: 16px;
+      clip-path: none; border-radius: 8px;
+      background: repeating-linear-gradient(#2a2c30 0 6px, #4a4e55 6px 8px);
+      box-shadow: inset 0 0 0 1px #0008;
+    }
+    body[data-theme="tricorder"] .leaf { display: none; }
+    body[data-theme="tricorder"] .page { border-radius: 14px; box-shadow: none; padding: 20px; }
+    body[data-theme="tricorder"] .page::after { background: none; }
+    body[data-theme="tricorder"] .folio { display: none; }
+
+    /* left half: keypad */
+    body[data-theme="tricorder"] .page.left { background: linear-gradient(#1d1f23, #141518); box-shadow: inset 0 0 0 1px #0008, inset 0 2px 8px #0009; text-align: left; }
+    body[data-theme="tricorder"] .tp > .the, body[data-theme="tricorder"] .tp > .of,
+    body[data-theme="tricorder"] .tp > .desc, body[data-theme="tricorder"] .tp > .rule,
+    body[data-theme="tricorder"] .tp > h1 { display: none; }
+    body[data-theme="tricorder"] .tp > .author { font-family: 'Antonio', sans-serif; font-size: 13px; letter-spacing: 0.3em; color: #9aa0a8; text-transform: uppercase; }
+    body[data-theme="tricorder"] .device-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .device-head .brand { font-family: 'Antonio', sans-serif; font-weight: 600; font-size: 18px; letter-spacing: 0.2em; color: #d7dbe0; }
+    .device-head .leds { display: flex; gap: 6px; }
+    .device-head .leds i { width: 9px; height: 9px; border-radius: 50%; background: #3a1a12; box-shadow: inset 0 0 0 1px #000; }
+    .device-head .leds i:nth-child(1) { background: #ff5a3c; box-shadow: 0 0 8px #ff5a3c; animation: blink 1.1s steps(1) infinite; }
+    .device-head .leds i:nth-child(2) { background: #ffcc66; box-shadow: 0 0 6px #ffcc66; }
+    .device-head .leds i:nth-child(3) { background: #66ff99; box-shadow: 0 0 6px #66ff99; animation: blink 2.3s steps(1) infinite 0.4s; }
+    @keyframes blink { 50% { opacity: 0.2; } }
+    body[data-theme="tricorder"] .device-lcd {
+      display: block; margin: 10px 0 12px; padding: 8px 10px;
+      background: #0b1f14; border-radius: 6px; box-shadow: inset 0 0 0 2px #000, inset 0 0 18px #000;
+      font-family: 'Share Tech Mono', monospace; font-size: 13px; line-height: 1.5; color: #66ff99; text-shadow: 0 0 6px #66ff9988;
+      white-space: pre;
+    }
+    body[data-theme="tricorder"] .toc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; margin: 0; }
+    body[data-theme="tricorder"] .toc .bk { grid-column: 1 / -1; margin: 6px 0 0; font-family: 'Antonio', sans-serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--key); }
+    body[data-theme="tricorder"] .toc .bk i { display: none; }
+    body[data-theme="tricorder"] .toc a {
+      padding: 7px 12px; border-radius: 14px;
+      background: var(--key); color: #000;
+      font-family: 'Antonio', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em;
+      opacity: 0.55; box-shadow: inset 0 -3px 0 #0005;
+      transition: opacity 0.15s, box-shadow 0.15s;
+    }
+    body[data-theme="tricorder"] .toc a .t { color: #000 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    body[data-theme="tricorder"] .toc a .lead { border: 0; }
+    body[data-theme="tricorder"] .toc a:hover { opacity: 0.85; }
+    body[data-theme="tricorder"] .toc a[aria-current="true"] { opacity: 1; box-shadow: 0 0 12px var(--key), inset 0 -3px 0 #0005; }
+    body[data-theme="tricorder"] .toc a[aria-current="true"]::before { content: none; }
+    .toc [data-book="I"]   { --key: #ff9966; }
+    .toc [data-book="II"]  { --key: #ffcc66; }
+    .toc [data-book="III"] { --key: #9999ff; }
+    .toc [data-book="IV"]  { --key: #cc99cc; }
+    body[data-theme="tricorder"] .imprint { margin-top: 12px; text-align: left; font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; color: #6f7680; }
+    body[data-theme="tricorder"] .imprint a { color: #9aa0a8; }
+
+    /* right half: the display */
+    body[data-theme="tricorder"] .page.right {
+      background: #020305; color: #e8e2d4;
+      box-shadow: inset 0 0 0 3px #000, 0 0 0 3px #4a4e55, inset 0 0 40px #0b1a2a;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    body[data-theme="tricorder"] .page.right::after { /* scan sweep + scanlines */
+      background:
+        linear-gradient(#0000 0 45%, #66ccff14 50%, #0000 55%) 0 0/100% 300% no-repeat,
+        repeating-linear-gradient(#0000 0 2px, #ffffff06 2px 3px);
+      animation: sweep 4s linear infinite;
+      border-radius: 14px;
+    }
+    @keyframes sweep { from { background-position: 0 100%, 0 0; } to { background-position: 0 -100%, 0 0; } }
+    .lc-top { display: grid; grid-template-columns: 70px 1fr 30px; gap: 6px; height: 30px; }
+    .lc-top .elbow { background: #ff9966; border-radius: 22px 0 0 0; }
+    .lc-top .bar { background: #cc99cc; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px; font-family: 'Antonio', sans-serif; font-size: 14px; letter-spacing: 0.15em; color: #000; text-transform: uppercase; }
+    .lc-top .cap { background: #9999ff; border-radius: 0 15px 15px 0; }
+    .lc-frame { display: grid; grid-template-columns: 70px 1fr; gap: 14px; flex: 1; min-height: 0; margin-top: 6px; }
+    .lc-side { display: flex; flex-direction: column; gap: 6px; }
+    .lc-side span { background: var(--c); color: #000; font-family: 'Antonio', sans-serif; font-size: 12px; text-align: right; padding: 18px 6px 3px; }
+    .lc-side span:last-child { flex: 1; border-radius: 0 0 0 22px; }
+    .lc-main { min-width: 0; overflow: auto; scrollbar-width: none; padding-top: 4px; }
+    .lc-main h2 { font-family: 'Antonio', sans-serif; font-weight: 600; font-size: 34px; letter-spacing: 0.04em; text-transform: uppercase; color: #ff9966; line-height: 1; text-align: left; margin: 0; }
+    .lc-main .sub { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #9999ff; text-transform: uppercase; text-align: left; margin: 6px 0 12px; font-style: normal; }
+    .lc-main p { font-family: 'Share Tech Mono', monospace; font-size: 14px; line-height: 1.55; text-align: left; hyphens: manual; color: #e8e2d4; }
+    .lc-main p::first-letter { float: none; font: inherit; color: inherit; padding: 0; }
+    .lc-main .plate { filter: grayscale(1) sepia(1) hue-rotate(160deg) saturate(2.5) brightness(0.9); mix-blend-mode: normal; border-color: #9999ff; max-width: 100%; margin: 12px 0 0; }
+    .lc-main .plate-live { margin: 12px 0 0; width: 100%; border-color: #9999ff; }
+    .lc-main .plate-cap { text-align: left; color: #9999ff; font-family: 'Share Tech Mono', monospace; font-style: normal; text-transform: uppercase; }
+    .lc-notes { margin-top: 10px; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #ffcc66; text-transform: uppercase; }
+    .lc-cta { display: inline-block; margin-top: 12px; padding: 6px 18px; border-radius: 15px; background: #ff9966; color: #000; text-decoration: none; font-family: 'Antonio', sans-serif; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .lc-cta:hover { background: #ffcc66; }
+    .lc-wave { height: 26px; margin-top: 8px; overflow: hidden; border-top: 1px solid #9999ff44; }
+    .lc-wave svg { width: 200%; height: 100%; animation: wave 3s linear infinite; }
+    @keyframes wave { to { transform: translateX(-50%); } }
+    .chapter.blip { animation: blip 0.35s steps(4); }
+    @keyframes blip { 0% { filter: brightness(2.5) contrast(0.6); } 50% { filter: brightness(0.4); } 100% { filter: none; } }
+
+    /* ── Of Blocks: Minecraft's book screen ── */
+    body::before {
+      /* the world behind the GUI, blurred and darkened the way the game does it */
+      background:
+        linear-gradient(#101010c0, #101010d0),
+        linear-gradient(90deg, #0000 0 8%, #3c6e2a 8% 14%, #0000 14% 61%, #3c6e2a 61% 69%, #0000 69%) 0 34%/100% 22% no-repeat,
+        linear-gradient(90deg, #0000 0 10%, #6b4a2b 10% 12%, #0000 12% 64%, #6b4a2b 64% 66%, #0000 66%) 0 52%/100% 12% no-repeat,
+        linear-gradient(#0000 0 58%, #5d9b3a 58% 62%, #7a5232 62% 80%, #6e6e6e 80%),
+        linear-gradient(#78a7ff, #a8c8ff 58%);
+      filter: blur(6px);
+      transform: scale(1.05);
+    }
+    body[data-theme="blocks"]::before { opacity: 1; }
+    body[data-theme="blocks"] .book {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); aspect-ratio: auto;
+      gap: 28px;
+      width: min(960px, 100%);
+      perspective: none; filter: none;
+    }
+    body[data-theme="blocks"] .ribbon,
+    body[data-theme="blocks"] .leaf,
+    body[data-theme="blocks"] .folio { display: none; }
+    /* Two separate Minecraft books: contents on the left, the chapter on the right */
+    body[data-theme="blocks"] .page {
+      width: 100%; min-height: 560px;
+      border-radius: 0 !important;
+      padding: 34px 36px 64px 54px;
+      background:
+        linear-gradient(90deg, #6b3f1f 0 10px, #8a5530 10px 16px, #c9ae7a 16px 22px, #0000 22px),
+        #f3e7c9;
+      box-shadow: inset 0 0 0 4px #d6c093, inset -8px 0 0 4px #e8d8b0, 0 0 0 3px #2c1c0c;
+      font-family: 'Pixelify Sans', monospace; color: #000;
+      image-rendering: pixelated;
+    }
+    body[data-theme="blocks"] .page::after { background: none; }
+
+    /* contents book */
+    body[data-theme="blocks"] .tp { text-align: left; }
+    body[data-theme="blocks"] .tp > .rule, body[data-theme="blocks"] .tp > .of { display: none; }
+    body[data-theme="blocks"] .tp > .the,
+    body[data-theme="blocks"] .tp > h1 { font-family: inherit; font-size: 19px; letter-spacing: 0; color: #000; line-height: 1.3; margin: 0; }
+    body[data-theme="blocks"] .tp > .the::before { content: 'Page 1 of 1'; display: block; text-align: right; font-size: 16px; margin-bottom: 14px; }
+    body[data-theme="blocks"] .tp > .author { font-family: inherit; font-size: 16px; letter-spacing: 0; color: #555; margin: 0 0 2px; }
+    body[data-theme="blocks"] .tp > .author::before { content: 'by '; }
+    body[data-theme="blocks"] .tp > .desc { display: none; }
+    body[data-theme="blocks"] .tp > h1 { margin-top: 10px; }
+    body[data-theme="blocks"] .toc { font-size: 16px; margin-top: 4px; }
+    body[data-theme="blocks"] .toc .bk { font-family: inherit; letter-spacing: 0; font-size: 16px; color: #000; margin: 10px 0 2px; }
+    body[data-theme="blocks"] .toc .bk i { display: none; }
+    body[data-theme="blocks"] .toc a { padding: 1px 0 1px 14px; color: #0000aa; }
+    body[data-theme="blocks"] .toc a .t { color: inherit !important; text-decoration: underline; text-underline-offset: 3px; }
+    body[data-theme="blocks"] .toc a .lead,
+    body[data-theme="blocks"] .toc a > span:last-child { display: none; }
+    body[data-theme="blocks"] .toc a:hover { color: #5555ff; }
+    body[data-theme="blocks"] .toc a[aria-current="true"] { color: #000; }
+    body[data-theme="blocks"] .toc a[aria-current="true"] .t { text-decoration: none; }
+    body[data-theme="blocks"] .toc a[aria-current="true"]::before { content: '>'; left: 0; color: #000; }
+    body[data-theme="blocks"] .imprint { text-align: left; font-family: inherit; font-size: 14px; letter-spacing: 0; color: #555; margin-top: 18px; }
+    body[data-theme="blocks"] .imprint a { color: #0000aa; }
+
+    .mc-pageno { text-align: right; font-size: 16px; color: #000; margin-bottom: 14px; }
+    .mc-title { font-size: 19px; margin-bottom: 8px; }
+    body[data-theme="blocks"] .chapter p { font-family: 'Pixelify Sans', monospace; font-size: 17px; line-height: 1.45; text-align: left; hyphens: manual; }
+    body[data-theme="blocks"] .chapter p::first-letter { float: none; font: inherit; color: inherit; padding: 0; }
+    body[data-theme="blocks"] .chapter .plate { filter: none; mix-blend-mode: normal; border: 3px solid #000; padding: 0; max-width: 100%; max-height: 150px; margin: 14px 0 0; image-rendering: pixelated; }
+    .mc-note { color: #555 !important; font-size: 15px !important; margin-top: 12px; }
+    .mc-link { display: inline-block; margin-top: 10px; color: #0000aa; font-size: 17px; text-decoration: underline; text-underline-offset: 3px; }
+    .mc-link:hover { color: #5555ff; }
+    .mc-arrow { position: absolute; bottom: 20px; width: 36px; height: 20px; display: block; }
+    .mc-arrow.prev { left: 54px; transform: scaleX(-1); }
+    .mc-arrow.next { right: 36px; }
+    .mc-arrow svg { width: 100%; height: 100%; display: block; }
+    .mc-arrow polygon { fill: #c4a875; stroke: #5b4526; stroke-width: 1; }
+    .mc-arrow:hover polygon { fill: #f5e2b0; }
+    body[data-theme="blocks"] .mc-done {
+      display: block; grid-column: 1 / -1; justify-self: center;
+      width: min(400px, 100%); margin-top: -8px;
+      padding: 8px 0 10px; text-align: center;
+      font-family: 'Pixelify Sans', monospace; font-size: 18px; color: #fff; text-decoration: none;
+      text-shadow: 2px 2px 0 #3f3f3f;
+      background: #727272;
+      box-shadow: inset 2px 2px 0 #a8a8a8, inset -2px -3px 0 #4a4a4a, 0 0 0 2px #000;
+    }
+    body[data-theme="blocks"] .mc-done:hover { box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #000; color: #ffffa0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .book.morphing, .chapter.blip, .lc-wave svg, .device-head .leds i { animation: none; }
+      body[data-theme="tricorder"] .page.right::after { animation: none; }
+    }
+
+    @media (max-width: 860px) {
+      body[data-theme="tricorder"] .book { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 14px; }
+      body[data-theme="tricorder"] .ribbon { display: none; }
+      body[data-theme="tricorder"] .page.right { min-height: 70vh; }
+      body[data-theme="blocks"] .book { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      body[data-theme="blocks"] .page { min-height: 0; padding: 28px 22px 64px 40px; }
+      body[data-theme="blocks"] .page.right { min-height: 70vh; }
+      .mc-arrow.prev { left: 40px; }
+      .mc-arrow.next { right: 22px; }
+    }
+
     @media (max-width: 860px) {
       .book { grid-template-columns: 1fr; aspect-ratio: auto; }
       .page { padding: 32px 24px 48px; border-radius: 6px !important; }
@@ -136,12 +356,14 @@
     <div class="ribbon" aria-hidden="true"></div>
 
     <section class="page left tp">
+      <div class="device-head" aria-hidden="true"><span class="brand">JASKO · TR-4</span><span class="leds"><i></i><i></i><i></i></span></div>
       <div class="the">The Collected Works</div>
       <div class="of">of</div>
       <div class="author">Tim Jasko</div>
       <p class="desc">Who readeth old books &amp; buildeth new things; who cultivateth software, but also fruit trees.</p>
       <div class="rule"></div>
       <h1>In Four Books</h1>
+      <div class="device-lcd" id="device-lcd" aria-hidden="true"></div>
 
       <nav class="toc" id="toc" aria-label="Contents"></nav>
 
@@ -156,6 +378,7 @@
     </section>
 
     <section class="page right chapter" id="chapter" aria-live="polite"></section>
+    <a class="mc-done" id="mc-done" href="#">Done</a>
 
     <div class="leaf" id="leaf" aria-hidden="true"><div class="face chapter" id="leaf-front"></div><div class="face back"></div></div>
   </div>
@@ -173,7 +396,7 @@
           p: 'A reading companion for the foundational text of geometry. For each proposition an explanation is to be had on demand, so that the modern reader may follow the reasoning without losing the thread.',
           m: ['Q.E.D., but gentler.'], hand: '', cta: ['Read the Text', 'https://euclids-elements-lektor.vercel.app/'] },
       ] },
-      { n: 'II', title: 'Of the Heavens', gloss: 'wherein the planets keep time, & sing', chapters: [
+      { n: 'II', title: 'Of the Heavens', gloss: 'wherein the planets keep time, & sing', theme: 'tricorder', chapters: [
         { slug: 'kepler', t: 'Of the Harmony of the World', short: 'Kepler', sub: 'Harmonices Mundi, Anno 1619, made audible', img: 'images/kepler.jpg',
           p: 'In this critical work Johannes Kepler described the planets as making music, each singing according to its motion. Now, at last, we may hear what that would have sounded like.',
           m: ['Bring headphones.'], hand: 'Earth sings mi-fa-mi.', cta: ['Hear It Now', 'https://kepler-harmonies.vercel.app/'] },
@@ -181,7 +404,7 @@
           p: 'Every Tuesday, somewhere in the solar system, it is Taco Tuesday. Orbital mechanics are computed across all nine planets, from Mercury’s year of eighty-eight days to Pluto’s of two hundred forty-eight years.',
           m: ['Pluto is a planet here.'], hand: 'Disputed.', cta: ['Behold the Orrery', 'taco-tuesday/index.html'] },
       ] },
-      { n: 'III', title: 'Of Blocks', gloss: 'being modifications to the game Minecraft', chapters: [
+      { n: 'III', title: 'Of Blocks', gloss: 'being modifications to the game Minecraft', theme: 'blocks', chapters: [
         { slug: 'zoogoer', t: 'Of Zoos & Their Admirers', short: 'Zoogoer', sub: 'A modification, written in Java', img: 'images/zoogoer.png',
           p: 'New villagers are introduced to the world, who come to admire the creatures you have collected, and who reward the keeper of a well-built zoo.',
           m: ['Feed the animals.'], hand: '', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
@@ -207,6 +430,8 @@
     const chapterEl = document.getElementById('chapter');
     const leaf      = document.getElementById('leaf');
     const leafFront = document.getElementById('leaf-front');
+    const bookEl    = document.querySelector('.book');
+    const doneEl    = document.getElementById('mc-done');
     const calm      = matchMedia('(prefers-reduced-motion: reduce)');
     const narrow    = matchMedia('(max-width: 860px)');
     const flat      = [];
@@ -214,7 +439,8 @@
     books.forEach(b => {
       const h = document.createElement('div');
       h.className = 'bk';
-      h.innerHTML = `Book ${b.n}. ${b.title}, <i>${b.gloss}</i>`;
+      h.dataset.book = b.n;
+      h.innerHTML = `Book ${b.n}. ${b.title}<i>, ${b.gloss}</i>`;
       toc.appendChild(h);
       b.chapters.forEach((c, i) => {
         c.book = b;
@@ -222,6 +448,7 @@
         c.page = flat.length * PAGES_PER_CHAPTER + 1;
         const a = document.createElement('a');
         a.href = '#' + c.slug;
+        a.dataset.book = b.n;
         a.innerHTML = `<span class="t">${c.short}</span><span class="lead"></span><span>${c.page}</span>`;
         toc.appendChild(a);
         c.link = a;
@@ -239,9 +466,18 @@
       return c.img ? `<img class="plate" src="${c.img}" alt="">` : '';
     }
 
-    function render(c) {
-      flat.forEach(x => x.link.setAttribute('aria-current', x === c));
-      chapterEl.innerHTML = `
+    const themeOf = c => c.book.theme || 'book';
+
+    // A tiny inline pixel arrow for the Minecraft page-turn buttons
+    const mcArrow = '<svg viewBox="0 0 18 10" shape-rendering="crispEdges"><polygon points="0,3 10,3 10,0 18,5 10,10 10,7 0,7"/></svg>';
+    const waveSvg = (() => {
+      let d = 'M0 13';
+      for (let x = 0; x < 400; x += 20) d += ` Q${x + 5} ${x % 40 ? 2 : 24} ${x + 10} 13 T${x + 20} 13`;
+      return `<svg viewBox="0 0 400 26" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="#66ccff" stroke-width="1.5"/></svg>`;
+    })();
+
+    const templates = {
+      book: c => `
         <div class="running"><span>Book ${c.book.n}</span><span>${c.book.title.replace('Of ', '')}</span></div>
         <div class="num">Chapter ${roman(c.idx)}</div>
         <h2>${c.t}</h2>
@@ -252,7 +488,45 @@
         </div>
         <a class="cta" href="${c.cta[1]}" target="_blank">☞ ${c.cta[0]} ☜</a>
         <div class="finis">❧</div>
-        <span class="folio">${c.page}</span>`;
+        <span class="folio">${c.page}</span>`,
+
+      tricorder: c => `
+        <div class="lc-top"><span class="elbow"></span><span class="bar">${c.book.title.replace('Of ', '')} · ${c.book.n}-${String(c.idx + 1).padStart(2, '0')}</span><span class="cap"></span></div>
+        <div class="lc-frame">
+          <div class="lc-side">
+            <span style="--c:#ff9966">${String(c.page).padStart(3, '0')}</span>
+            <span style="--c:#cc99cc">${c.slug.length * 47}</span>
+            <span style="--c:#9999ff">${roman(c.idx).toUpperCase()}</span>
+            <span style="--c:#ffcc66"></span>
+          </div>
+          <div class="lc-main">
+            <h2>${c.short}</h2>
+            <div class="sub">${c.sub}</div>
+            <p>${c.p}</p>
+            ${plate(c)}
+            <div class="lc-notes">${[...c.m, c.hand].filter(Boolean).join(' · ')}</div>
+            <a class="lc-cta" href="${c.cta[1]}" target="_blank">${c.cta[0]}</a>
+          </div>
+        </div>
+        <div class="lc-wave" aria-hidden="true">${waveSvg}</div>`,
+
+      blocks: c => {
+        const chs = c.book.chapters, prev = chs[c.idx - 1], next = chs[c.idx + 1];
+        return `
+        <div class="mc-pageno">Page ${c.idx + 1} of ${chs.length}</div>
+        <div class="mc-title">${c.short}</div>
+        <p>${c.p}</p>
+        ${plate(c)}
+        <p class="mc-note">${[...c.m, c.hand].filter(Boolean).join(' ')}</p>
+        <a class="mc-link" href="${c.cta[1]}" target="_blank">${c.cta[0]}</a>
+        ${prev ? `<a class="mc-arrow prev" href="#${prev.slug}" aria-label="Previous page">${mcArrow}</a>` : ''}
+        ${next ? `<a class="mc-arrow next" href="#${next.slug}" aria-label="Next page">${mcArrow}</a>` : ''}`;
+      },
+    };
+
+    function render(c) {
+      flat.forEach(x => x.link.setAttribute('aria-current', x === c));
+      chapterEl.innerHTML = templates[themeOf(c)](c);
       chapterEl.querySelector('.plate-live iframe')?.addEventListener('load', e => {
         // At plate size the orrery's settings panel would cover half the figure
         try {
@@ -263,14 +537,34 @@
       });
     }
 
+    // Swap theme and content in one go; `effect` is the transition to play, if any
+    function show(c, effect) {
+      document.body.dataset.theme = themeOf(c);
+      render(c);
+      tickLcd();
+      if (calm.matches || !effect) return;
+      const el = effect === 'morph' ? bookEl : chapterEl;
+      const cls = effect === 'morph' ? 'morphing' : 'blip';
+      el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+    }
+
     let current = null;
+    let lastOutsideBlocks = flat[0];
     let busy = false;
     function turnTo(c) {
       if (!c || c === current || busy) return;
-      const first = current === null;
+      const prev = current;
       current = c;
-      if (first || calm.matches) { render(c); return; }
-      if (narrow.matches) { render(c); chapterEl.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (themeOf(c) !== 'blocks') lastOutsideBlocks = c;
+      doneEl.href = '#' + lastOutsideBlocks.slug;
+
+      if (!prev) { show(c); return; }
+      const themeChanged = themeOf(prev) !== themeOf(c);
+      const effect = themeChanged ? 'morph' : themeOf(c) === 'tricorder' ? 'blip' : null;
+      if (narrow.matches) { show(c, effect); chapterEl.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (themeChanged || themeOf(c) !== 'book' || calm.matches) { show(c, effect); return; }
+
+      // book → book: turn the page
       busy = true;
       // Copy the outgoing page onto the leaf, but don't spin up a second live iframe
       leafFront.innerHTML = chapterEl.innerHTML;
@@ -284,6 +578,18 @@
       }, 900);
     }
 
+    // Tricorder readout: local time and the countdown that matters
+    const lcd = document.getElementById('device-lcd');
+    function tickLcd() {
+      if (document.body.dataset.theme !== 'tricorder') return;
+      const now = new Date();
+      const days = (2 - now.getDay() + 7) % 7;
+      lcd.textContent =
+        `LOCAL  ${now.toTimeString().slice(0, 8)}\n` +
+        (days ? `TUESDAY IN ${days} DAY${days > 1 ? 'S' : ''}` : 'IT IS TUESDAY. EAT.');
+    }
+    setInterval(tickLcd, 1000);
+
     const fromHash = () => flat.find(c => '#' + c.slug === location.hash) || flat[0];
     addEventListener('hashchange', () => turnTo(fromHash()));
 
@@ -295,6 +601,7 @@
     });
 
     turnTo(fromHash());
+    tickLcd();
   </script>
 </body>
 </html>
