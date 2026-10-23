@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup O — Orrery</title>
+  <!--
+    Concept: a clockwork orrery. You are the sun. The three categories are
+    planets on brass orbits; the projects are their moons. Hover anything to
+    pause the gears. Click a planet to bring it close and read its moons.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brass: #C9A55C;
+      --brass-dim: rgba(201, 165, 92, 0.28);
+      --ink: #EFE6D2;
+      --muted: rgba(239, 230, 210, 0.62);
+      --c-books: #E0B46A;
+      --c-mine:  #6FCF5A;
+      --c-misc:  #6EC1E4;
+    }
+    html, body { height: 100%; overflow: hidden; background: #04050b; color: var(--ink); font-family: 'EB Garamond', Georgia, serif; }
+
+    canvas#stars { position: fixed; inset: 0; z-index: 0; }
+
+    .stage { position: fixed; inset: 0; z-index: 1; }
+    .orbit {
+      position: absolute; left: 50%; top: 50%;
+      border: 1px solid var(--brass-dim);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .orbit::before { /* tick marks like an engraved ring */
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      background: repeating-conic-gradient(var(--brass-dim) 0 0.4deg, transparent 0.4deg 6deg);
+      -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+              mask: radial-gradient(closest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    }
+
+    .sun {
+      position: absolute; left: 50%; top: 50%;
+      width: 170px; height: 170px; transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #fff4d6, #f0c46a 35%, #b8741e 75%, #6a3a0c);
+      box-shadow: 0 0 60px #f0b45a99, 0 0 140px #f0b45a44;
+      display: grid; place-items: center; text-align: center;
+      color: #2a1606;
+    }
+    .sun h1 { font-family: 'Cinzel', serif; font-weight: 600; font-size: 20px; letter-spacing: 0.08em; line-height: 1.1; }
+    .sun p { font-size: 12px; font-style: italic; max-width: 120px; margin: 4px auto 0; line-height: 1.2; }
+
+    .body {
+      position: absolute; left: 0; top: 0;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    .planet {
+      width: var(--s); height: var(--s);
+      background: radial-gradient(circle at 35% 30%, #fff9 0 6%, var(--c) 35%, color-mix(in srgb, var(--c) 40%, #000) 100%);
+      box-shadow: 0 0 24px color-mix(in srgb, var(--c) 45%, transparent);
+    }
+    .planet:focus-visible { outline: 2px solid var(--c); outline-offset: 6px; }
+    .planet-label {
+      position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%);
+      font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.14em; white-space: nowrap;
+      color: var(--c); text-shadow: 0 0 8px #000;
+      pointer-events: none;
+    }
+    .moon {
+      width: 14px; height: 14px;
+      background: radial-gradient(circle at 35% 30%, #fff, var(--c) 45%, color-mix(in srgb, var(--c) 35%, #000));
+      text-decoration: none;
+    }
+    .moon-label {
+      position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; white-space: nowrap; color: var(--ink);
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      text-shadow: 0 0 6px #000, 0 0 12px #000;
+    }
+    .stage.paused .moon-label, .moon:hover .moon-label, .focused .moon-label { opacity: 1; }
+    .moon:hover { box-shadow: 0 0 0 4px #fff3; }
+
+    /* Detail placard — engraved brass plate */
+    .placard {
+      position: fixed; z-index: 3;
+      right: 28px; bottom: 28px;
+      width: min(360px, calc(100vw - 32px));
+      padding: 18px 22px 16px;
+      background: linear-gradient(160deg, #3a2d16ee, #1b140aee);
+      border: 1px solid var(--brass);
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 4px #1b140a, inset 0 0 0 5px var(--brass-dim), 0 20px 50px #000a;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .placard.hidden { opacity: 0; transform: translateY(12px); pointer-events: none; }
+    .placard .k { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.3em; color: var(--pc, var(--brass)); }
+    .placard h2 { font-family: 'Cinzel', serif; font-weight: 400; font-size: 21px; margin: 4px 0 6px; }
+    .placard p { font-size: 15px; line-height: 1.45; color: var(--muted); }
+    .placard ul { list-style: none; margin-top: 8px; }
+    .placard li { padding: 5px 0; border-top: 1px solid var(--brass-dim); font-size: 15px; display: flex; justify-content: space-between; gap: 10px; }
+    .placard li a { color: var(--ink); text-decoration: none; }
+    .placard li a:hover { color: var(--pc); }
+    .placard li span { font-size: 12px; font-style: italic; color: var(--muted); white-space: nowrap; }
+    .placard .cta { display: inline-block; margin-top: 10px; color: var(--pc); font-style: italic; text-decoration: none; }
+
+    .legend {
+      position: fixed; z-index: 3; left: 28px; bottom: 28px;
+      font-size: 13px; color: var(--muted); line-height: 1.7;
+    }
+    .legend b { font-family: 'Cinzel', serif; font-weight: 400; color: var(--brass); letter-spacing: 0.15em; font-size: 11px; display: block; }
+    .legend a { color: var(--muted); }
+    .back {
+      position: fixed; z-index: 3; top: 22px; left: 50%; transform: translateX(-50%);
+      font-family: 'Cinzel', serif; letter-spacing: 0.2em; font-size: 11px;
+      background: none; border: 1px solid var(--brass-dim); color: var(--brass);
+      padding: 8px 16px; border-radius: 99px; cursor: pointer;
+      transition: opacity 0.3s;
+    }
+    .back.hidden { opacity: 0; pointer-events: none; }
+
+    @media (max-width: 720px) {
+      .sun { width: 120px; height: 120px; }
+      .sun h1 { font-size: 15px; }
+      .sun p { display: none; }
+      .legend { display: none; }
+      .placard { right: 16px; bottom: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+
+  <div class="stage" id="stage">
+    <div class="sun"><div><h1>Tim<br>Jasko</h1><p>reads old books &amp; builds new things</p></div></div>
+  </div>
+
+  <button class="back hidden" id="back">← The whole system</button>
+
+  <aside class="placard hidden" id="placard"></aside>
+
+  <div class="legend">
+    <b>A Mechanical Model of One Person’s Hobbies</b>
+    Hover to stop the gears · click a planet to visit<br>
+    <a href="https://github.com/bitflora" target="_blank">GitHub</a> ·
+    <a href="mailto:tim.jasko@gmail.com">Email</a> ·
+    <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn</a>
+  </div>
+
+  <script>
+    const systems = [
+      { key: 'books', name: 'Old Books', color: '#E0B46A', size: 46, orbit: 0.42, period: 90, phase: 0.2,
+        blurb: 'Classic texts made readable again with modern notation, commentary, and a good deal of AI.',
+        moons: [
+          { title: 'Patristics', meta: '400 texts', href: 'https://patristics-site.vercel.app/' },
+          { title: 'Galileo’s Two New Sciences', meta: '1638', href: 'https://galileo-two-new-sciences.vercel.app/' },
+          { title: 'Euclid Companion', meta: 'c. 300 BC', href: 'https://euclids-elements-lektor.vercel.app/' },
+          { title: 'Kepler’s Harmony of the World', meta: '1619', href: 'https://kepler-harmonies.vercel.app/' },
+        ] },
+      { key: 'mine', name: 'Minecraft', color: '#6FCF5A', size: 30, orbit: 0.26, period: 55, phase: 0.65,
+        blurb: 'Java mods for a world made of blocks: zoos worth visiting and StarCraft in survival mode.',
+        moons: [
+          { title: 'Zoogoer', meta: 'Mod', href: 'https://www.curseforge.com/minecraft/mc-mods/zoogoer' },
+          { title: 'AsteriskCraft', meta: 'Mod', href: 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft' },
+        ] },
+      { key: 'misc', name: 'Miscellaneous', color: '#6EC1E4', size: 38, orbit: 0.56, period: 140, phase: 0.45,
+        blurb: 'Everything else: a calendar for nine planets, a painting that runs, a tick that teaches, and a boulder.',
+        moons: [
+          { title: 'Solar Taco Tuesday', meta: 'Astronomy', href: '../../taco-tuesday/index.html' },
+          { title: 'Mandelbrot in Piet', meta: 'Esolang', href: 'https://github.com/bitflora/piet#llms-as-yak-shavers' },
+          { title: 'Sim Tick', meta: 'Simulation', href: 'https://sim-tick.vercel.app/' },
+          { title: 'Sisyphus Quest', meta: 'Game', href: '/sisyphus-quest/' },
+        ] },
+    ];
+
+    const TILT = 0.78;
+    const stage   = document.getElementById('stage');
+    const placard = document.getElementById('placard');
+    const back    = document.getElementById('back');
+
+    systems.forEach(s => {
+      s.ring = document.createElement('div'); s.ring.className = 'orbit'; stage.appendChild(s.ring);
+      s.el = document.createElement('button');
+      s.el.className = 'body planet';
+      s.el.style.setProperty('--c', s.color);
+      s.el.style.setProperty('--s', s.size + 'px');
+      s.el.setAttribute('aria-label', s.name);
+      s.el.innerHTML = `<span class="planet-label">${s.name}</span>`;
+      s.el.addEventListener('click', () => focus(s));
+      s.el.addEventListener('mouseenter', () => preview(s));
+      stage.appendChild(s.el);
+      s.moons.forEach((m, i) => {
+        m.el = document.createElement('a');
+        m.el.className = 'body moon';
+        m.el.href = m.href; m.el.target = '_blank';
+        m.el.style.setProperty('--c', s.color);
+        m.el.innerHTML = `<span class="moon-label">${m.title}</span>`;
+        m.el.addEventListener('mouseenter', () => preview(s));
+        m.phase = i / s.moons.length;
+        stage.appendChild(m.el);
+      });
+    });
+
+    let paused = false, t = 0, last = 0, focused = null, zoom = 1, zoomTarget = 1, cam = { x: 0, y: 0 }, camTarget = { x: 0, y: 0 };
+    stage.addEventListener('mouseover', e => { if (e.target.closest('.body')) { paused = true; stage.classList.add('paused'); } });
+    stage.addEventListener('mouseout',  e => { if (e.target.closest('.body') && !e.relatedTarget?.closest?.('.body')) { paused = false; stage.classList.remove('paused'); } });
+
+    function preview(s) {
+      placard.style.setProperty('--pc', s.color);
+      placard.innerHTML = `<div class="k">${s.moons.length} moons</div><h2>${s.name}</h2><p>${s.blurb}</p>
+        <ul>${s.moons.map(m => `<li><a href="${m.href}" target="_blank">${m.title}</a><span>${m.meta}</span></li>`).join('')}</ul>`;
+      placard.classList.remove('hidden');
+    }
+
+    function focus(s) {
+      focused = s;
+      stage.classList.add('focused');
+      zoomTarget = 2.1;
+      back.classList.remove('hidden');
+      preview(s);
+    }
+    back.addEventListener('click', () => {
+      focused = null; zoomTarget = 1; camTarget = { x: 0, y: 0 };
+      stage.classList.remove('focused'); back.classList.add('hidden');
+    });
+    addEventListener('keydown', e => { if (e.key === 'Escape') back.click(); });
+
+    function frame(now) {
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
+      if (!paused) t += dt * (focused ? 0.35 : 1);
+      const W = innerWidth, H = innerHeight, R = Math.min(W, H);
+      const cx = W / 2, cy = H / 2;
+
+      zoom += (zoomTarget - zoom) * 0.08;
+      if (focused) {
+        const a = (t / focused.period + focused.phase) * Math.PI * 2;
+        camTarget = { x: Math.cos(a) * focused.orbit * R, y: Math.sin(a) * focused.orbit * R * TILT };
+      }
+      cam.x += (camTarget.x - cam.x) * 0.08;
+      cam.y += (camTarget.y - cam.y) * 0.08;
+      const P = (x, y) => [cx + (x - cam.x) * zoom, cy + (y - cam.y) * zoom];
+
+      systems.forEach(s => {
+        const r = s.orbit * R;
+        const sunPos = P(0, 0);
+        s.ring.style.left = sunPos[0] + 'px'; s.ring.style.top = sunPos[1] + 'px';
+        s.ring.style.width = r * 2 * zoom + 'px'; s.ring.style.height = r * 2 * TILT * zoom + 'px';
+        const a = (t / s.period + s.phase) * Math.PI * 2;
+        const px = Math.cos(a) * r, py = Math.sin(a) * r * TILT;
+        const [sx, sy] = P(px, py);
+        s.el.style.left = sx + 'px'; s.el.style.top = sy + 'px';
+        s.el.style.width = s.el.style.height = s.size * Math.sqrt(zoom) + 'px';
+        s.moons.forEach((m, i) => {
+          const mr = (s.size * 0.9 + 16 + i * 9) * (focused === s ? 1.6 : 1);
+          const ma = (t / (6 + i * 2.5) + m.phase) * Math.PI * 2;
+          const [mx, my] = P(px + Math.cos(ma) * mr, py + Math.sin(ma) * mr);
+          m.el.style.left = mx + 'px'; m.el.style.top = my + 'px';
+          m.el.style.opacity = !focused || focused === s ? 1 : 0.25;
+        });
+      });
+      const sun = stage.querySelector('.sun');
+      const [sx, sy] = P(0, 0);
+      sun.style.left = sx + 'px'; sun.style.top = sy + 'px';
+      sun.style.transform = `translate(-50%,-50%) scale(${Math.sqrt(zoom)})`;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    // Starfield
+    const cv = document.getElementById('stars'), ctx = cv.getContext('2d');
+    let stars = [];
+    function sizeStars() {
+      cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
+      stars = Array.from({ length: 260 }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, r: Math.random() * 1.2 * devicePixelRatio, p: Math.random() * 6 }));
+    }
+    sizeStars(); addEventListener('resize', sizeStars);
+    (function twinkle(n) {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      stars.forEach(s => { ctx.globalAlpha = 0.4 + 0.4 * Math.sin(n / 900 + s.p); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill(); });
+      requestAnimationFrame(twinkle);
+    })(0);
+  </script>
+</body>
+</html>

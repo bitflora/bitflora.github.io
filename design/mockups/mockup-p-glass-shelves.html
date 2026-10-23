@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup P — Glass Shelves</title>
+  <!--
+    Concept: the least disruptive option. Keeps the current glass layout
+    (Taco Tuesday background, identity panel, project rail, sticky info pane)
+    and turns the project rail into three labelled shelves with a segmented
+    filter on top. Each shelf collapses. The info panel tints to the category.
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --glass-bg:     rgba(8, 10, 20, 0.60);
+      --glass-border: rgba(255, 255, 255, 0.10);
+      --text:         #F4F2EE;
+      --muted:        rgba(244, 242, 238, 0.70);
+      --blur:         blur(24px) saturate(1.5);
+      --c-books: #D9B36C;
+      --c-mine:  #7FD15B;
+      --c-misc:  #7EC8E3;
+    }
+    html, body { height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; color: var(--text); background: #05060c; }
+
+    .bg { position: fixed; inset: 0; z-index: 0; }
+    .bg iframe { width: 100%; height: 100%; border: none; display: block; }
+
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .identity { position: fixed; z-index: 2; left: 28px; top: 28px; width: 320px; padding: 22px 24px; }
+    .id-eyebrow { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
+    .id-name { font-size: 28px; font-weight: 300; margin: 4px 0 10px; }
+    .id-bio { font-size: 13px; line-height: 1.6; color: var(--muted); }
+    .id-bio button { background: none; border: none; font: inherit; color: var(--c); cursor: pointer; border-bottom: 1px dotted var(--c); padding: 0; }
+    .id-links { display: flex; gap: 14px; margin-top: 12px; }
+    .id-links a { font-size: 11px; color: var(--muted); text-decoration: none; }
+    .id-links a:hover { color: var(--text); }
+
+    /* ── Project rail ── */
+    .rail {
+      position: fixed; z-index: 2; right: 28px; top: 28px; bottom: 28px;
+      width: 330px; display: flex; flex-direction: column; padding: 14px;
+    }
+    .seg {
+      display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 4px;
+      background: rgba(255,255,255,0.05); border-radius: 12px; padding: 4px;
+      margin-bottom: 12px;
+    }
+    .seg button {
+      background: none; border: none; color: var(--muted);
+      font: 500 11px system-ui; padding: 8px 8px; border-radius: 9px; cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .seg button:hover { color: var(--text); }
+    .seg button[aria-pressed="true"] { background: color-mix(in srgb, var(--c, #fff) 22%, transparent); color: var(--text); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c, #fff) 45%, transparent); }
+
+    .shelves { overflow-y: auto; flex: 1; padding-right: 2px; scrollbar-width: thin; scrollbar-color: #fff3 transparent; }
+    .shelf { margin-bottom: 10px; }
+    .shelf[hidden] { display: none; }
+    .shelf-head {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      background: none; border: none; color: var(--text); cursor: pointer;
+      padding: 8px 6px; font: 600 11px system-ui; letter-spacing: 0.18em; text-transform: uppercase;
+    }
+    .shelf-head .glyph { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; background: color-mix(in srgb, var(--c) 20%, transparent); color: var(--c); font-size: 12px; letter-spacing: 0; }
+    .shelf-head .count { margin-left: auto; color: var(--muted); font-weight: 400; letter-spacing: 0.05em; }
+    .shelf-head .chev { color: var(--muted); transition: transform 0.25s; }
+    .shelf.collapsed .chev { transform: rotate(-90deg); }
+    .shelf-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.3s ease; }
+    .shelf.collapsed .shelf-body { grid-template-rows: 0fr; }
+    .shelf-body > div { overflow: hidden; border-left: 2px solid color-mix(in srgb, var(--c) 40%, transparent); margin-left: 16px; padding-left: 10px; }
+
+    .card {
+      display: block; padding: 10px 12px; margin: 4px 0; border-radius: 10px;
+      text-decoration: none; color: var(--text);
+      transition: background 0.2s;
+      position: relative;
+    }
+    .card:hover, .card.active { background: rgba(255,255,255,0.07); }
+    .card.active::before { content: ''; position: absolute; left: -13px; top: 10px; bottom: 10px; width: 2px; background: var(--pc); }
+    .card-title { font-size: 14px; }
+    .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Info pane ── */
+    .info {
+      position: fixed; z-index: 2;
+      left: calc(50% - 165px); top: 50%; transform: translate(-50%, -50%);
+      width: min(440px, calc(100vw - 720px)); padding: 26px 28px;
+      border-top: 2px solid var(--pc);
+      transition: border-color 0.4s;
+    }
+    .i-crumbs { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+    .i-crumbs b { color: var(--cc); font-weight: 600; }
+    .i-title { font-size: 26px; font-weight: 300; margin: 8px 0 4px; }
+    .i-sub { font-size: 12px; color: var(--pc); margin-bottom: 12px; }
+    .i-desc { font-size: 14px; line-height: 1.65; color: var(--muted); }
+    .i-cta { display: inline-block; margin-top: 16px; padding: 8px 16px; border-radius: 99px; background: color-mix(in srgb, var(--pc) 20%, transparent); border: 1px solid color-mix(in srgb, var(--pc) 45%, transparent); color: var(--text); text-decoration: none; font-size: 12px; }
+    .i-siblings { display: flex; gap: 6px; margin-top: 18px; flex-wrap: wrap; }
+    .i-siblings button { font-size: 10px; padding: 4px 9px; border-radius: 99px; background: none; border: 1px solid var(--glass-border); color: var(--muted); cursor: pointer; }
+    .i-siblings button:hover { color: var(--text); border-color: #fff4; }
+
+    @media (max-width: 1100px) {
+      .info { left: 28px; top: auto; bottom: 28px; transform: none; width: calc(100vw - 420px); }
+      .identity { width: calc(100vw - 420px); }
+    }
+    @media (max-width: 720px) {
+      html, body { overflow: auto; }
+      .identity, .rail, .info { position: relative; inset: auto; left: auto; right: auto; top: auto; bottom: auto; transform: none; width: auto; margin: 16px; }
+      .rail { height: auto; }
+      .shelves { overflow: visible; }
+      body { display: flex; flex-direction: column; }
+      .bg { position: fixed; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"><iframe src="../../taco-tuesday/index.html" title="Solar Taco Tuesday" scrolling="no"></iframe></div>
+
+  <section class="glass identity">
+    <div class="id-eyebrow">Portfolio</div>
+    <div class="id-name">Tim Jasko</div>
+    <p class="id-bio">I read <button data-filter="books" style="--c:var(--c-books)">old books</button>, build <button data-filter="mine" style="--c:var(--c-mine)">in blocks</button>, and make <button data-filter="misc" style="--c:var(--c-misc)">other new things</button>. I cultivate software but also fruit trees.</p>
+    <div class="id-links">
+      <a href="https://github.com/bitflora" target="_blank">GitHub ↗</a>
+      <a href="mailto:tim.jasko@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn ↗</a>
+    </div>
+  </section>
+
+  <section class="glass info" id="info"></section>
+
+  <nav class="glass rail">
+    <div class="seg" id="seg">
+      <button data-filter="all" aria-pressed="true">All</button>
+      <button data-filter="books" style="--c:var(--c-books)" aria-pressed="false">Old Books</button>
+      <button data-filter="mine" style="--c:var(--c-mine)" aria-pressed="false">Minecraft</button>
+      <button data-filter="misc" style="--c:var(--c-misc)" aria-pressed="false">Misc</button>
+    </div>
+    <div class="shelves" id="shelves"></div>
+  </nav>
+
+  <script>
+    const cats = {
+      books: { label: 'Old Books',     glyph: '❦', color: 'var(--c-books)' },
+      mine:  { label: 'Minecraft',     glyph: '▦', color: 'var(--c-mine)'  },
+      misc:  { label: 'Miscellaneous', glyph: '✶', color: 'var(--c-misc)'  },
+    };
+    const projects = [
+      { key: 'pat', cat: 'books', title: 'Patristics', sub: '400 Texts · 800,000 cross-references · Go · Python · SQLite', color: '#9B8FFF', desc: 'A three-stage AI pipeline that ingests, processes, and semantically indexes writings from the early Church Fathers, built into a site for navigation, lookup, and visualization.', cta: ['Visit site', 'https://patristics-site.vercel.app/'] },
+      { key: 'gal', cat: 'books', title: 'Galileo’s Two New Sciences', sub: '1638 Original · LLM-assisted learning', color: '#FFA050', desc: 'Galileo’s final work introduced whole new areas of physics, but it’s hard going without modern notation. This adds inline notation, figures, and commentary.', cta: ['Read the text', 'https://galileo-two-new-sciences.vercel.app/'] },
+      { key: 'euc', cat: 'books', title: 'Euclid Companion', sub: 'Elements · Heath Translation', color: '#4FD1C5', desc: 'A reading companion for Euclid’s Elements in Heath’s classic translation, with explanations on demand for each proposition.', cta: ['Read the text', 'https://euclids-elements-lektor.vercel.app/'] },
+      { key: 'kep', cat: 'books', title: 'Kepler’s Harmony of the World', sub: '1619 · Harmonices Mundi · JavaScript', color: '#E8D87E', desc: 'In 1619 Kepler described the planets as making music. Now we can hear what that would have sounded like.', cta: ['Hear it now', 'https://kepler-harmonies.vercel.app/'] },
+      { key: 'zoo', cat: 'mine', title: 'Zoogoer', sub: 'Java · Forge', color: '#56C56E', desc: 'New villagers who admire the creatures you’ve collected and reward you for a well-built zoo.', cta: ['View on CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
+      { key: 'ast', cat: 'mine', title: 'AsteriskCraft', sub: 'Java · StarCraft × Minecraft', color: '#A8D94E', desc: 'Terran, Protoss, and Zerg rebuilt as blocks, mobs, and resources, so a survival world can be played as an RTS match.', cta: ['View on CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
+      { key: 'taco', cat: 'misc', title: 'Solar Taco Tuesday', sub: 'Astronomy · Interactive · JavaScript', color: '#D4AE60', desc: 'Every Tuesday, somewhere in the solar system, it’s Taco Tuesday. Orbital mechanics across all nine planets, running live behind this page.', cta: null },
+      { key: 'pie', cat: 'misc', title: 'Mandelbrot in Piet', sub: 'Piet · Rust · Python', color: '#7EC8E3', desc: 'Piet programs are abstract paintings. Writing this one was an exercise in letting LLMs build the tooling so I could focus on the painting.', cta: ['Read the retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
+      { key: 'sim', cat: 'misc', title: 'Sim Tick', sub: 'TypeScript · Science', color: '#E54B4B', desc: 'A tick lifecycle simulator built from the latest research, modelling interventions to find efficient ways to eliminate Lyme disease.', cta: ['Visit site', 'https://sim-tick.vercel.app/'] },
+      { key: 'sis', cat: 'misc', title: 'Sisyphus Quest', sub: 'Vue · TypeScript', color: '#E0E0E0', desc: 'A small game inspired by the myth of Sisyphus. Move right to push the boulder up the hill. If you reach the top, you win!', cta: ['Play now', '/sisyphus-quest/'] },
+    ];
+
+    const shelvesEl = document.getElementById('shelves');
+    const info = document.getElementById('info');
+
+    Object.entries(cats).forEach(([key, c]) => {
+      const list = projects.filter(p => p.cat === key);
+      const shelf = document.createElement('div');
+      shelf.className = 'shelf'; shelf.dataset.cat = key; shelf.style.setProperty('--c', c.color);
+      shelf.innerHTML = `
+        <button class="shelf-head" aria-expanded="true"><span class="glyph">${c.glyph}</span>${c.label}<span class="count">${list.length}</span><span class="chev">▾</span></button>
+        <div class="shelf-body"><div></div></div>`;
+      const body = shelf.querySelector('.shelf-body > div');
+      list.forEach(p => {
+        const a = document.createElement('a');
+        a.className = 'card'; a.style.setProperty('--pc', p.color);
+        a.href = p.cta ? p.cta[1] : '#'; if (p.cta) a.target = '_blank';
+        a.innerHTML = `<div class="card-title">${p.title}</div><div class="card-sub">${p.sub}</div>`;
+        a.addEventListener('mouseenter', () => show(p));
+        a.addEventListener('focus', () => show(p));
+        body.appendChild(a); p.el = a;
+      });
+      const head = shelf.querySelector('.shelf-head');
+      head.addEventListener('click', () => {
+        const c = shelf.classList.toggle('collapsed');
+        head.setAttribute('aria-expanded', !c);
+      });
+      shelvesEl.appendChild(shelf);
+    });
+
+    function show(p) {
+      projects.forEach(q => q.el.classList.toggle('active', q === p));
+      const c = cats[p.cat];
+      info.style.setProperty('--pc', p.color);
+      info.style.setProperty('--cc', c.color);
+      const sibs = projects.filter(q => q.cat === p.cat && q !== p);
+      info.innerHTML = `
+        <div class="i-crumbs"><b>${c.glyph} ${c.label}</b> / ${projects.filter(q => q.cat === p.cat).indexOf(p) + 1} of ${sibs.length + 1}</div>
+        <div class="i-title">${p.title}</div>
+        <div class="i-sub">${p.sub}</div>
+        <p class="i-desc">${p.desc}</p>
+        ${p.cta ? `<a class="i-cta" href="${p.cta[1]}" target="_blank">${p.cta[0]} →</a>` : ''}
+        <div class="i-siblings">${sibs.map(s => `<button data-k="${s.key}">${s.title}</button>`).join('')}</div>`;
+      info.querySelectorAll('.i-siblings button').forEach(b => b.addEventListener('click', () => show(projects.find(q => q.key === b.dataset.k))));
+    }
+
+    function filter(f) {
+      document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.filter === f));
+      document.querySelectorAll('.shelf').forEach(s => {
+        s.hidden = f !== 'all' && s.dataset.cat !== f;
+        s.classList.remove('collapsed');
+      });
+      if (f !== 'all') show(projects.find(p => p.cat === f));
+    }
+    document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => filter(b.dataset.filter)));
+
+    setTimeout(() => show(projects.find(p => p.key === 'taco')), 600);
+  </script>
+</body>
+</html>

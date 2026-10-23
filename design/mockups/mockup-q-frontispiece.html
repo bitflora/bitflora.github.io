@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup Q — Frontispiece</title>
+  <!--
+    Concept: the portfolio is itself an old book. An open two-page spread:
+    the left page is a 17th-century title page + table of contents, with the
+    three categories as "Books" and the projects as chapters. Choosing a
+    chapter turns the right-hand page to that project, complete with drop cap,
+    running head, and marginalia.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #efe2c4;
+      --ink: #2a1d10;
+      --faded: #6b5638;
+      --rubric: #9b2a17;
+    }
+    html, body { min-height: 100%; background: #1a120b; font-family: 'IM Fell English', Georgia, serif; color: var(--ink); }
+    body {
+      background:
+        radial-gradient(ellipse at 50% 40%, #3a2716, #120c07 75%);
+      display: grid; place-items: center;
+      padding: 32px 16px;
+      min-height: 100vh;
+    }
+
+    .book {
+      position: relative;
+      display: grid; grid-template-columns: 1fr 1fr;
+      width: min(1100px, 100%);
+      aspect-ratio: 1.45;
+      perspective: 2400px;
+      filter: drop-shadow(0 30px 40px #000c);
+    }
+    .page {
+      position: relative;
+      background:
+        linear-gradient(90deg, #0000 85%, #0002) ,
+        radial-gradient(ellipse at 30% 20%, #f6ecd4, #e9d9b4 60%, #dcc79c);
+      padding: 48px 52px 40px;
+    }
+    .page.left  { border-radius: 6px 0 0 6px; box-shadow: inset -30px 0 40px -20px #0005; }
+    .page.right { border-radius: 0 6px 6px 0; box-shadow: inset 30px 0 40px -20px #0005; background: linear-gradient(270deg, #0000 85%, #0002), radial-gradient(ellipse at 30% 20%, #f6ecd4, #e9d9b4 60%, #dcc79c); }
+    .page::after { /* foxing */
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 88%, #8a5a2a22 0 3%, transparent 6%),
+        radial-gradient(circle at 80% 10%, #8a5a2a1a 0 2%, transparent 5%);
+    }
+    .folio { position: absolute; bottom: 20px; font-size: 14px; color: var(--faded); }
+    .left .folio { left: 52px; } .right .folio { right: 52px; }
+
+    /* ── Title page ── */
+    .tp { text-align: center; }
+    .tp .the { font-family: 'IM Fell English SC', serif; font-size: 15px; letter-spacing: 0.25em; }
+    .tp h1 { font-family: 'UnifrakturMaguntia', serif; font-weight: 400; font-size: 46px; line-height: 1; margin: 4px 0 2px; color: var(--rubric); }
+    .tp .of { font-style: italic; font-size: 15px; }
+    .tp .author { font-family: 'IM Fell English SC', serif; font-size: 22px; letter-spacing: 0.12em; margin: 2px 0; }
+    .tp .desc { font-style: italic; font-size: 14px; color: var(--faded); max-width: 360px; margin: 6px auto 0; line-height: 1.35; }
+    .rule { height: 0; border-top: 1px solid var(--ink); border-bottom: 3px double var(--ink); margin: 14px auto; width: 70%; padding-top: 3px; }
+
+    .toc { margin-top: 6px; font-size: 15px; }
+    .toc .bk { font-family: 'IM Fell English SC', serif; letter-spacing: 0.08em; color: var(--rubric); margin: 10px 0 2px; font-size: 15px; }
+    .toc .bk i { font-family: 'IM Fell English', serif; letter-spacing: 0; color: var(--faded); font-size: 13px; }
+    .toc button {
+      display: flex; align-items: baseline; gap: 6px; width: 100%;
+      background: none; border: none; font: inherit; color: var(--ink); text-align: left;
+      cursor: pointer; padding: 1px 0 1px 16px;
+    }
+    .toc button .lead { flex: 1; border-bottom: 1px dotted var(--faded); transform: translateY(-4px); min-width: 20px; }
+    .toc button:hover .t, .toc button[aria-current="true"] .t { color: var(--rubric); }
+    .toc button[aria-current="true"]::before { content: '☞'; position: absolute; margin-left: -18px; color: var(--rubric); }
+    .toc button:focus-visible { outline: 1px dashed var(--rubric); }
+    .imprint { margin-top: 16px; text-align: center; font-size: 11px; font-family: 'IM Fell English SC'; letter-spacing: 0.12em; color: var(--faded); line-height: 1.6; }
+    .imprint a { color: var(--faded); }
+
+    /* ── Chapter page + turning leaf ── */
+    .chapter .running { display: flex; justify-content: space-between; font-family: 'IM Fell English SC'; font-size: 12px; letter-spacing: 0.15em; color: var(--faded); border-bottom: 1px solid var(--faded); padding-bottom: 4px; margin-bottom: 20px; }
+    .chapter .num { font-family: 'IM Fell English SC'; text-align: center; font-size: 14px; letter-spacing: 0.3em; }
+    .chapter h2 { text-align: center; font-weight: 400; font-size: 30px; line-height: 1.1; margin: 4px 0 4px; }
+    .chapter .sub { text-align: center; font-style: italic; font-size: 14px; color: var(--faded); margin-bottom: 18px; }
+    .chapter .body { display: grid; grid-template-columns: 1fr 120px; gap: 18px; }
+    .chapter p { font-size: 17px; line-height: 1.5; text-align: justify; hyphens: auto; }
+    .chapter p::first-letter {
+      float: left; font-family: 'UnifrakturMaguntia', serif; color: var(--rubric);
+      font-size: 64px; line-height: 0.85; padding: 4px 8px 0 0;
+    }
+    .marginalia { font-size: 12.5px; font-style: italic; color: var(--faded); line-height: 1.35; border-left: 1px solid #6b563855; padding-left: 10px; }
+    .marginalia .hand { font-family: 'IM Fell English'; font-size: 14px; color: #3a5f8a; transform: rotate(-3deg); display: block; margin-top: 14px; }
+    .chapter .plate { margin: 16px auto 0; display: block; max-height: 130px; max-width: 70%; filter: sepia(0.7) contrast(1.05); mix-blend-mode: multiply; border: 1px solid var(--ink); padding: 3px; }
+    .chapter .cta { display: block; text-align: center; margin-top: 14px; font-family: 'IM Fell English SC'; letter-spacing: 0.15em; color: var(--rubric); text-decoration: none; font-size: 15px; }
+    .chapter .cta:hover { text-decoration: underline; }
+    .finis { text-align: center; font-size: 18px; margin-top: 8px; color: var(--faded); }
+
+    .leaf {
+      position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      pointer-events: none;
+      z-index: 5;
+      visibility: hidden;
+    }
+    .leaf.turning { visibility: visible; }
+    .leaf .face.chapter { padding: 48px 52px 40px; overflow: hidden; }
+    .leaf.turning { animation: turn 0.9s cubic-bezier(.45,.05,.35,1) forwards; }
+    .leaf .face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 0 6px 6px 0;
+      background: linear-gradient(270deg, #0000 70%, #0003), radial-gradient(ellipse at 30% 20%, #f6ecd4, #e9d9b4 60%, #dcc79c); }
+    .leaf .back { transform: rotateY(180deg); border-radius: 6px 0 0 6px; background: linear-gradient(90deg, #0000 70%, #0003), radial-gradient(ellipse at 30% 20%, #f6ecd4, #e9d9b4 60%, #dcc79c); }
+    @keyframes turn {
+      0%   { transform: rotateY(0); }
+      100% { transform: rotateY(-180deg); }
+    }
+
+    .ribbon { position: absolute; top: -6px; left: calc(50% + 30px); width: 18px; height: 70px; background: var(--rubric); z-index: 6; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%); box-shadow: 0 2px 4px #0006; }
+
+    @media (max-width: 860px) {
+      .book { grid-template-columns: 1fr; aspect-ratio: auto; }
+      .page { padding: 32px 24px 48px; border-radius: 6px !important; }
+      .page.left { margin-bottom: 14px; }
+      .leaf, .ribbon { display: none; }
+      .chapter .body { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="book">
+    <div class="ribbon" aria-hidden="true"></div>
+
+    <section class="page left tp">
+      <div class="the">The Collected Works</div>
+      <div class="of">of</div>
+      <div class="author">Tim Jasko</div>
+      <p class="desc">Who readeth old books &amp; buildeth new things; who cultivateth software, but also fruit trees.</p>
+      <div class="rule"></div>
+      <h1>In Three Books</h1>
+
+      <nav class="toc" id="toc"></nav>
+
+      <div class="imprint">
+        Printed for the Author, and sold at
+        <a href="https://github.com/bitflora" target="_blank">GitHub</a>,
+        <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn</a>, &amp;
+        <a href="mailto:tim.jasko@gmail.com">by Post</a><br>
+        MMXXVI
+      </div>
+      <span class="folio">i</span>
+    </section>
+
+    <section class="page right chapter" id="chapter" aria-live="polite"></section>
+
+    <div class="leaf" id="leaf" aria-hidden="true"><div class="face chapter" id="leaf-front"></div><div class="face back"></div></div>
+  </div>
+
+  <script>
+    const books = [
+      { n: 'I', title: 'Of Old Books', gloss: 'wherein ancient texts are made new', chapters: [
+        { t: 'Of the Fathers of the Church', short: 'Patristics', page: 1, sub: 'Four hundred texts, eight hundred thousand cross-references', img: '../../images/bible-hyperlink.png',
+          p: 'A three-stage pipeline, aided by artificial intelligence, that ingests, processes, and indexes the writings of the early Church Fathers. Some four hundred texts spanning two thousand years were parsed, and above eight hundred thousand references drawn out and correlated, then bound into a site for easy navigation and lookup.',
+          m: ['Go, Python, SQLite, and JavaScript.'], hand: 'cf. Book I, ch. ii', cta: ['Visit the Site', 'https://patristics-site.vercel.app/'] },
+        { t: 'Of Two New Sciences', short: 'Galileo', page: 9, sub: 'Being Galileo’s last book, Anno 1638, newly annotated',
+          p: 'Galileo’s final published work opened whole new provinces of physics, yet it is hard reading, for he lacked the mathematical notation we now take for granted. Here modern notation, figures, and commentary are supplied inline, that a student might follow him.',
+          m: ['An experiment in AI as tutor.'], hand: 'He would have liked LaTeX.', cta: ['Read the Text', 'https://galileo-two-new-sciences.vercel.app/'] },
+        { t: 'Of the Elements of Euclid', short: 'Euclid', page: 17, sub: 'In Sir Thomas Heath’s translation, with a Companion',
+          p: 'A reading companion for the foundational text of geometry. For each proposition an explanation is to be had on demand, so that the modern reader may follow the reasoning without losing the thread.',
+          m: ['Q.E.D., but gentler.'], hand: '', cta: ['Read the Text', 'https://euclids-elements-lektor.vercel.app/'] },
+        { t: 'Of the Harmony of the World', short: 'Kepler', page: 25, sub: 'Harmonices Mundi, Anno 1619, made audible', img: '../../images/kepler.jpg',
+          p: 'In this critical work Johannes Kepler described the planets as making music, each singing according to its motion. Now, at last, we may hear what that would have sounded like.',
+          m: ['Bring headphones.'], hand: 'Earth sings mi-fa-mi.', cta: ['Hear It Now', 'https://kepler-harmonies.vercel.app/'] },
+      ] },
+      { n: 'II', title: 'Of Blocks', gloss: 'being modifications to the game Minecraft', chapters: [
+        { t: 'Of Zoos & Their Admirers', short: 'Zoogoer', page: 33, sub: 'A modification, written in Java', img: '../../images/zoogoer.png',
+          p: 'New villagers are introduced to the world, who come to admire the creatures you have collected, and who reward the keeper of a well-built zoo.',
+          m: ['Feed the animals.'], hand: '', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
+        { t: 'Of the Three Races of the Stars', short: 'AsteriskCraft', page: 41, sub: 'StarCraft brought into the Overworld', img: '../../images/asteriskcraft.png',
+          p: 'Terran, Protoss, and Zerg, together with their trees of technology, are rebuilt as blocks, mobs, and resources, so that a survival world may be played as a match of real-time strategy.',
+          m: ['You must construct additional pylons.'], hand: 'GG', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
+      ] },
+      { n: 'III', title: 'Of Divers Curiosities', gloss: 'which resist all classification', chapters: [
+        { t: 'Of Tacos upon the Planets', short: 'Solar Taco Tuesday', page: 49, sub: 'An orrery for a weekly feast',
+          p: 'Every Tuesday, somewhere in the solar system, it is Taco Tuesday. Orbital mechanics are computed across all nine planets, from Mercury’s year of eighty-eight days to Pluto’s of two hundred forty-eight years.',
+          m: ['Pluto is a planet here.'], hand: 'Disputed.', cta: ['Behold the Orrery', '../../taco-tuesday/index.html'] },
+        { t: 'Of a Painting that Computes', short: 'Piet', page: 57, sub: 'The Mandelbrot set, writ in colour', img: '../../images/mandelbrot.jpg',
+          p: 'Piet is a language wherein programs are abstract paintings and instructions are encoded as changes of colour between blocks. In painting this one, the author made trial of LLMs as builders of tools, that he might keep to the central task.',
+          m: ['Rust & Python for the tools.'], hand: 'On yak-shaving.', cta: ['Read the Retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
+        { t: 'Of the Tick, & How to Be Rid of It', short: 'Sim Tick', page: 65, sub: 'A simulation drawn from the latest research',
+          p: 'An accurate simulator of the life of the tick, built upon recent science, whose purpose is to find efficient means of exterminating the Lyme disease by modelling tick populations under divers interventions.',
+          m: ['TypeScript.'], hand: 'Check your ankles.', cta: ['Visit the Site', 'https://sim-tick.vercel.app/'] },
+        { t: 'Of Sisyphus & His Stone', short: 'Sisyphus Quest', page: 73, sub: 'A game in the manner of pixels', img: '../../images/sisyphus-quest.gif',
+          p: 'A simple game after the myth of Sisyphus. Move right to push the boulder up the hill. Should you reach the top, you win.',
+          m: ['Vue & TypeScript.'], hand: 'One must imagine him happy.', cta: ['Play Now', '/sisyphus-quest/'] },
+      ] },
+    ];
+
+    const toc = document.getElementById('toc');
+    const chapterEl = document.getElementById('chapter');
+    const leaf = document.getElementById('leaf');
+    const flat = [];
+
+    books.forEach(b => {
+      const h = document.createElement('div');
+      h.className = 'bk';
+      h.innerHTML = `Book ${b.n}. ${b.title}, <i>${b.gloss}</i>`;
+      toc.appendChild(h);
+      b.chapters.forEach((c, i) => {
+        c.book = b; c.idx = i;
+        const btn = document.createElement('button');
+        btn.innerHTML = `<span class="t">${c.short}</span><span class="lead"></span><span>${c.page}</span>`;
+        btn.addEventListener('click', () => turnTo(c));
+        toc.appendChild(btn);
+        c.btn = btn;
+        flat.push(c);
+      });
+    });
+
+    const roman = n => ['i','ii','iii','iv','v','vi'][n] || n;
+    function render(c) {
+      flat.forEach(x => x.btn.setAttribute('aria-current', x === c));
+      chapterEl.innerHTML = `
+        <div class="running"><span>Book ${c.book.n}</span><span>${c.book.title.replace('Of ', '')}</span></div>
+        <div class="num">Chapter ${roman(c.idx)}</div>
+        <h2>${c.t}</h2>
+        <div class="sub">${c.sub}</div>
+        <div class="body">
+          <div><p>${c.p}</p>${c.img ? `<img class="plate" src="${c.img}" alt="">` : ''}</div>
+          <aside class="marginalia">${c.m.join('<br>')}${c.hand ? `<span class="hand">${c.hand}</span>` : ''}</aside>
+        </div>
+        <a class="cta" href="${c.cta[1]}" target="_blank">☞ ${c.cta[0]} ☜</a>
+        <div class="finis">❧</div>
+        <span class="folio">${c.page}</span>`;
+    }
+
+    let busy = false;
+    function turnTo(c) {
+      if (busy) return;
+      if (matchMedia('(max-width: 860px)').matches) { render(c); chapterEl.scrollIntoView({ behavior: 'smooth' }); return; }
+      busy = true;
+      document.getElementById('leaf-front').innerHTML = chapterEl.innerHTML;
+      leaf.classList.remove('turning'); void leaf.offsetWidth; leaf.classList.add('turning');
+      render(c);
+      setTimeout(() => { leaf.classList.remove('turning'); busy = false; }, 900);
+    }
+
+    addEventListener('keydown', e => {
+      const cur = flat.findIndex(x => x.btn.getAttribute('aria-current') === 'true');
+      if (e.key === 'ArrowRight' && cur < flat.length - 1) turnTo(flat[cur + 1]);
+      if (e.key === 'ArrowLeft' && cur > 0) turnTo(flat[cur - 1]);
+    });
+
+    render(flat[0]);
+  </script>
+</body>
+</html>

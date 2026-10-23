@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup T — Rose Window</title>
+  <!--
+    Concept: categories borrowed from the medieval university, drawn as a
+    stained-glass rose window (after the Philosophia wheel in the Hortus
+    Deliciarum, with you in the centre where Philosophy usually sits).
+      Inner ring — the seven Liberal Arts:
+        Trivium:    Grammar (Patristics), Dialectic (Galileo, a dialogue), Rhetoric (vacant)
+        Quadrivium: Arithmetic (Piet Mandelbrot), Geometry (Euclid),
+                    Music (Kepler), Astronomy (Taco Tuesday)
+      Outer ring — Hugh of St Victor's seven Mechanical Arts:
+        Weaving (vacant), Armament (AsteriskCraft), Commerce (vacant),
+        Agriculture (the fruit trees, offline), Hunting (Zoogoer),
+        Medicine (Sim Tick), Theatre (Sisyphus Quest)
+    The vacant panes are deliberate: room to grow.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --stone: #1b1916; --gold: #d8b56a; --text: #efe7d6; --muted: #b9ad94; }
+    html, body { min-height: 100%; background: var(--stone); color: var(--text); font-family: 'Cormorant Garamond', Georgia, serif; }
+    body {
+      background:
+        radial-gradient(ellipse 45% 55% at 38% 50%, #ffffff10, transparent 70%),
+        repeating-linear-gradient(0deg, #0000 0 58px, #0000003a 58px 60px),
+        repeating-linear-gradient(90deg, #0000 0 118px, #00000030 118px 120px),
+        #24211c;
+      min-height: 100vh;
+      display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+      align-items: center; gap: 24px;
+      padding: 28px 40px;
+    }
+    .window-wrap { position: relative; display: grid; place-items: center; }
+    svg#rose { width: min(86vh, 100%); height: auto; overflow: visible; filter: drop-shadow(0 0 40px #0009); }
+
+    .pane { cursor: pointer; transition: filter 0.25s; }
+    .pane:hover, .pane:focus-visible, .pane.sel { filter: brightness(1.45) saturate(1.15) drop-shadow(0 0 14px var(--glow)); outline: none; }
+    .pane.vacant { cursor: help; }
+    .pane text { pointer-events: none; }
+    .arcname { font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.18em; fill: #fff3d6; }
+    .projname { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 17px; fill: #fff; paint-order: stroke; stroke: #0007; stroke-width: 3px; }
+    .vacant .projname { font-style: italic; font-weight: 400; fill: #fff9; }
+    .ringlabel { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.5em; fill: var(--gold); }
+
+    /* Light pooling on the floor, tinted by the selected pane */
+    .floor {
+      position: fixed; left: 0; right: 0; bottom: -20vh; height: 50vh; pointer-events: none;
+      background: radial-gradient(ellipse 40% 50% at 35% 30%, var(--pool, #d8b56a33), transparent 70%);
+      transition: background 0.6s;
+      z-index: -1;
+    }
+
+    aside { max-width: 420px; }
+    .who .eyebrow { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.3em; color: var(--gold); }
+    .who h1 { font-family: 'Cinzel', serif; font-weight: 400; font-size: 38px; letter-spacing: 0.05em; margin: 4px 0 6px; }
+    .who p { font-size: 19px; line-height: 1.4; color: var(--muted); font-style: italic; }
+    .who .links { margin-top: 10px; font-size: 16px; }
+    .who .links a { color: var(--text); margin-right: 14px; }
+
+    .plaque {
+      margin-top: 26px; padding: 20px 22px;
+      border: 1px solid #d8b56a55; border-left: 4px solid var(--pc, var(--gold));
+      background: #0000004d;
+      min-height: 230px;
+    }
+    .plaque .cat { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.25em; color: color-mix(in srgb, var(--pc, var(--gold)) 45%, #fff); }
+    .plaque h2 { font-family: 'Cinzel', serif; font-weight: 400; font-size: 24px; margin: 4px 0 0; }
+    .plaque .gloss { font-style: italic; color: var(--muted); font-size: 16px; margin-bottom: 12px; }
+    .plaque h3 { font-weight: 600; font-size: 21px; }
+    .plaque p { font-size: 17px; line-height: 1.45; margin-top: 4px; }
+    .plaque a.cta { display: inline-block; margin-top: 12px; color: var(--text); font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.15em; text-decoration: none; border-bottom: 1px solid var(--pc, var(--gold)); }
+    .key { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.15em; color: var(--muted); }
+    .key span::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 6px; background: var(--k); border: 1px solid #000; vertical-align: -1px; }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; padding: 20px 16px; }
+      aside { max-width: none; }
+      .who { order: -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="window-wrap">
+    <svg id="rose" viewBox="-430 -430 860 860" role="img" aria-label="Rose window of projects">
+      <defs>
+        <filter id="glass" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="7" result="n"/>
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.35 0" result="mottle"/>
+          <feComposite in="mottle" in2="SourceGraphic" operator="in" result="m"/>
+          <feBlend in="SourceGraphic" in2="m" mode="soft-light"/>
+        </filter>
+        <radialGradient id="centre" cx="45%" cy="40%">
+          <stop offset="0" stop-color="#fff2c4"/><stop offset="0.5" stop-color="#d8a640"/><stop offset="1" stop-color="#7a4f12"/>
+        </radialGradient>
+      </defs>
+      <circle r="425" fill="#3a352d" stroke="#14120f" stroke-width="10"/>
+      <circle r="410" fill="none" stroke="#5a5244" stroke-width="2"/>
+      <g id="panes"></g>
+      <g id="oculi"></g>
+      <g id="centre-g">
+        <circle r="104" fill="url(#centre)" stroke="#111" stroke-width="8" filter="url(#glass)"/>
+        <circle r="92" fill="none" stroke="#111" stroke-width="2" opacity="0.5"/>
+        <text y="-24" text-anchor="middle" class="ringlabel" style="fill:#3a2508;letter-spacing:0.35em">PHILOSOPHIA</text>
+        <text y="12" text-anchor="middle" style="font-family:Cinzel;font-size:26px;fill:#2a1806">TIM</text>
+        <text y="42" text-anchor="middle" style="font-family:Cinzel;font-size:26px;fill:#2a1806">JASKO</text>
+      </g>
+    </svg>
+  </div>
+
+  <aside>
+    <div class="who">
+      <div class="eyebrow">Septem Artes · Liberales et Mechanicae</div>
+      <h1>Tim Jasko</h1>
+      <p>I read old books and build new things. I cultivate software, but also fruit trees.</p>
+      <div class="links">
+        <a href="https://github.com/bitflora" target="_blank">GitHub</a>
+        <a href="mailto:tim.jasko@gmail.com">Email</a>
+        <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+    <div class="plaque" id="plaque" aria-live="polite"></div>
+    <div class="key">
+      <span style="--k:#b3202a">Trivium</span>
+      <span style="--k:#2556b0">Quadrivium</span>
+      <span style="--k:linear-gradient(90deg,#2f7d3b 50%,#c78b1d 50%)">Artes Mechanicae</span>
+    </div>
+  </aside>
+
+  <div class="floor" id="floor"></div>
+
+  <script>
+    const CAT = {
+      triv: { name: 'Trivium · the arts of words',            colors: ['#b3202a', '#9e1a3a', '#c4392a'] },
+      quad: { name: 'Quadrivium · the arts of number',        colors: ['#2556b0', '#1b4396', '#3268c4', '#203f8a'] },
+      mech: { name: 'Artes Mechanicae · the arts of making',  colors: ['#2f7d3b', '#c78b1d', '#2f7d3b', '#c78b1d', '#2f7d3b', '#c78b1d', '#2f7d3b'] },
+    };
+
+    const inner = [
+      { cat: 'triv', art: 'Grammatica', gloss: 'the art of reading texts', proj: 'Patristics', desc: 'Four hundred writings of the early Church Fathers, parsed by an AI pipeline into 800,000 cross-references you can navigate.', cta: ['Visit site', 'https://patristics-site.vercel.app/'] },
+      { cat: 'triv', art: 'Dialectica', gloss: 'the art of reasoned dialogue', proj: 'Two New Sciences', desc: 'Galileo’s last book, written as a dialogue between Salviati, Sagredo and Simplicio, with modern notation and commentary added.', cta: ['Read the text', 'https://galileo-two-new-sciences.vercel.app/'] },
+      { cat: 'triv', art: 'Rhetorica', gloss: 'the art of persuasion', proj: null, desc: 'This pane is vacant. Persuade me to fill it.', cta: ['Write to me', 'mailto:tim.jasko@gmail.com'] },
+      { cat: 'quad', art: 'Arithmetica', gloss: 'number in itself', proj: 'Mandelbrot in Piet', desc: 'The Mandelbrot set computed by a program that is itself an abstract painting, plus notes on LLMs as yak-shavers.', cta: ['Read the retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
+      { cat: 'quad', art: 'Geometria', gloss: 'number in space', proj: 'Euclid Companion', desc: 'A reading companion for Euclid’s Elements in Heath’s translation, with explanations on demand for every proposition.', cta: ['Read the text', 'https://euclids-elements-lektor.vercel.app/'] },
+      { cat: 'quad', art: 'Musica', gloss: 'number in time', proj: 'Harmony of the World', desc: 'In 1619 Kepler described the planets as making music. Now we can hear what that would have sounded like.', cta: ['Hear it now', 'https://kepler-harmonies.vercel.app/'] },
+      { cat: 'quad', art: 'Astronomia', gloss: 'number in space and time', proj: 'Solar Taco Tuesday', desc: 'Every Tuesday, somewhere in the solar system, it’s Taco Tuesday. Orbital mechanics for all nine planets.', cta: ['Open the orrery', '../../taco-tuesday/index.html'] },
+    ];
+    const outer = [
+      { art: 'Lanificium', gloss: 'weaving & cloth-making', proj: null, desc: 'Vacant. No textile software yet. Give it time.', cta: null },
+      { art: 'Armatura', gloss: 'building & armament', proj: 'AsteriskCraft', desc: 'A Minecraft mod rebuilding Terran, Protoss, and Zerg as blocks, mobs, and resources: building and armament both.', cta: ['View on CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
+      { art: 'Navigatio', gloss: 'commerce & travel', proj: null, desc: 'Vacant. Though LinkedIn is nearby, if this is about commerce.', cta: ['LinkedIn', 'https://www.linkedin.com/in/timothy-jasko-4536816/'] },
+      { art: 'Agricultura', gloss: 'tilling & tending', proj: 'Fruit Trees', desc: 'Offline only. Real trees, real fruit, no deploy pipeline.', cta: null },
+      { art: 'Venatio', gloss: 'hunting & the keeping of beasts', proj: 'Zoogoer', desc: 'A Minecraft mod adding villagers who admire the creatures you’ve collected and reward a well-built zoo.', cta: ['View on CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
+      { art: 'Medicina', gloss: 'healing', proj: 'Sim Tick', desc: 'A research-based tick lifecycle simulator, built to find efficient ways to eliminate Lyme disease.', cta: ['Visit site', 'https://sim-tick.vercel.app/'] },
+      { art: 'Theatrica', gloss: 'games & spectacle', proj: 'Sisyphus Quest', desc: 'Move right to push the boulder up the hill. If you reach the top, you win!', cta: ['Play now', '/sisyphus-quest/'] },
+    ].map(o => ({ ...o, cat: 'mech' }));
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const panes = document.getElementById('panes');
+    const plaque = document.getElementById('plaque');
+    const floor = document.getElementById('floor');
+    const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];
+    const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent?.appendChild(e); return e; };
+
+    function sector(r1, r2, a1, a2) {
+      const [x1, y1] = P(r2, a1), [x2, y2] = P(r2, a2), [x3, y3] = P(r1, a2), [x4, y4] = P(r1, a1);
+      const big = a2 - a1 > Math.PI ? 1 : 0;
+      return `M${x1},${y1} A${r2},${r2} 0 ${big} 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 ${big} 0 ${x4},${y4}Z`;
+    }
+    // Arc for label text; reversed in the lower half so it never reads upside down
+    function labelArc(r, a1, a2) {
+      const mid = (a1 + a2) / 2;
+      const lower = Math.sin(mid) > 0.15;
+      const [sx, sy] = P(r, lower ? a2 : a1), [ex, ey] = P(r, lower ? a1 : a2);
+      return { d: `M${sx},${sy} A${r},${r} 0 0 ${lower ? 0 : 1} ${ex},${ey}`, lower };
+    }
+
+    let uid = 0;
+    function ring(items, r1, r2, offset) {
+      const n = items.length, step = (Math.PI * 2) / n, gap = 0.035;
+      const counters = {};
+      items.forEach((it, i) => {
+        const a1 = -Math.PI / 2 + offset + i * step + gap / 2, a2 = a1 + step - gap;
+        counters[it.cat] = (counters[it.cat] ?? -1) + 1;
+        const color = it.proj ? CAT[it.cat].colors[counters[it.cat] % CAT[it.cat].colors.length] : '#3b4150';
+        it.color = color;
+        const g = el('g', { class: 'pane' + (it.proj ? '' : ' vacant'), tabindex: 0, role: 'button', 'aria-label': `${it.art}: ${it.proj ?? 'vacant'}` }, panes);
+        g.style.setProperty('--glow', color);
+        el('path', { d: sector(r1, r2, a1, a2), fill: color, stroke: '#111', 'stroke-width': 7, 'stroke-linejoin': 'round', filter: 'url(#glass)' }, g);
+        // inner tracery: a thin lead line echoing the pane
+        el('path', { d: sector(r1 + 12, r2 - 12, a1 + 0.03, a2 - 0.03), fill: 'none', stroke: '#0008', 'stroke-width': 1.5 }, g);
+        // Latin name along the outer edge
+        const { d } = labelArc(r2 - 22, a1 + 0.05, a2 - 0.05);
+        const id = 'arc' + uid++;
+        el('path', { id, d, fill: 'none' }, g);
+        const t = el('text', { class: 'arcname' }, g);
+        const tp = el('textPath', { href: '#' + id, startOffset: '50%', 'text-anchor': 'middle' }, t);
+        tp.textContent = it.art.toUpperCase();
+        // Project name, horizontal, at the pane's centre
+        const [cx, cy] = P((r1 + r2) / 2 - 14, (a1 + a2) / 2);
+        const words = (it.proj ?? 'vacat').split(' ');
+        const lines = words.length > 2 ? [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')] : words.length === 2 && (it.proj?.length ?? 0) > 12 ? words : [words.join(' ')];
+        lines.forEach((ln, li) => {
+          const tx = el('text', { class: 'projname', x: cx, y: cy + 6 + (li - (lines.length - 1) / 2) * 19, 'text-anchor': 'middle' }, g);
+          tx.textContent = ln;
+        });
+        const pick = () => select(it, g);
+        g.addEventListener('mouseenter', pick);
+        g.addEventListener('focus', pick);
+        g.addEventListener('click', () => { pick(); if (it.cta && it.proj) window.open(it.cta[1], '_blank'); });
+        it.g = g;
+      });
+    }
+
+    ring(inner, 114, 255, 0);
+    ring(outer, 264, 400, Math.PI / 7);
+
+    // oculi between the outer panes
+    const oc = document.getElementById('oculi');
+    for (let i = 0; i < 7; i++) {
+      const a = -Math.PI / 2 + Math.PI / 7 + i * (Math.PI * 2 / 7);
+      const [x, y] = P(412, a);
+      el('circle', { cx: x, cy: y, r: 9, fill: '#d8b56a', stroke: '#111', 'stroke-width': 3, filter: 'url(#glass)' }, oc);
+    }
+
+    function select(it, g) {
+      document.querySelectorAll('.pane.sel').forEach(p => p.classList.remove('sel'));
+      g.classList.add('sel');
+      plaque.style.setProperty('--pc', it.color);
+      floor.style.setProperty('--pool', it.color + '55');
+      plaque.innerHTML = `
+        <div class="cat">${CAT[it.cat].name}</div>
+        <h2>${it.art}</h2>
+        <div class="gloss">${it.gloss}</div>
+        <h3>${it.proj ?? 'Vacat'}</h3>
+        <p>${it.desc}</p>
+        ${it.cta ? `<a class="cta" href="${it.cta[1]}" target="_blank">${it.cta[0]} →</a>` : ''}`;
+    }
+
+    select(inner[6], inner[6].g);
+  </script>
+</body>
+</html>

@@ -16,32 +16,31 @@ npx serve
 
 **Single-file design.** All markup, styles, and logic live in `index.html`. There is no bundler, framework, or transpilation step.
 
-### Visual Layers (z-index stack)
+### Layout: an open book
 
-1. **Background** — Full-screen `<iframe>` embedding `../taco-tuesday/index.html` (Solar system animation). Per-project color overlays are toggled on top of this via JS.
-2. **Glass panels** — Glassmorphism UI elements (`backdrop-filter: blur`) floating above the background:
-   - `.panel-pill` (top-center) — live status badge
-   - `.panel-identity` (top-left) — about/links
-   - `.panel-projects` (right) — scrollable project cards
-   - `.info-panel` (center) — project detail pane, revealed on hover
+The site is styled as a 17th-century book, opened to a two-page spread (based on `design/mockups/mockup-q-frontispiece.html`).
+
+- **Left page** — title page ("The Collected Works of Tim Jasko … In Four Books"), a table of contents built from the `books` data, and the imprint holding the GitHub / LinkedIn / email links.
+- **Right page** (`#chapter`) — the selected project, rendered as a chapter: running head, drop cap, marginalia, a plate image, and a ☞ call-to-action link.
+- **`.leaf`** — the page-turn animation. On a chapter change the outgoing page is copied onto the leaf, which rotates over while the new chapter renders underneath. Skipped under `prefers-reduced-motion` and on narrow screens, where the spread collapses to one column.
 
 ### Interaction Model
 
-- Hovering a project card swaps `.info-panel` content and toggles the background overlay color.
-- The info panel is **sticky** — it does not clear on mouse-leave; it only updates on a new hover.
-- On page load, Taco Tuesday details auto-display after an 800 ms delay.
+- Each chapter has a `slug`; the TOC links are `#slug` hashes, and `hashchange` drives page turns, so chapters are linkable and survive reload. ←/→ keys step through chapters.
+- Page numbers are computed (`PAGES_PER_CHAPTER`), not hardcoded.
+- The Taco Tuesday chapter uses `live:` instead of `img:` — a scaled-down `<iframe>` of `taco-tuesday/index.html`. On load, the page injects CSS into the (same-origin) iframe to hide its `#control-panel`.
 
 ### Project Data
 
-All four projects are hardcoded in a `projects` JS object near the top of the `<script>` block, each with: `eyebrow`, `title`, `subtitle`, `desc`, `cta`, `color`, and `bg`.
+All projects live in the `books` array in the `<script>` block. Each book has `n`, `title`, `gloss`, and `chapters`; each chapter has `slug`, `t` (chapter title), `short` (TOC label), `sub`, `p` (body), `m` (marginal notes), `hand` (handwritten note), `cta` (`[label, href]`), and either `img` or `live`.
 
-| Key   | Project                        | Integration          |
-|-------|--------------------------------|----------------------|
-| `taco`| Solar Taco Tuesday             | `<iframe>` embed     |
-| `pat` | Patristics                     | External Vercel link |
-| `gal` | Galileo's Two New Sciences     | External Vercel link |
-| `sis` | Sisyphus Quest                 | External link        |
+| Book | Title                  | Chapters                              |
+|------|------------------------|---------------------------------------|
+| I    | Of Old Books           | Patristics, Galileo, Euclid           |
+| II   | Of the Heavens         | Kepler, Solar Taco Tuesday            |
+| III  | Of Blocks              | Zoogoer, AsteriskCraft (Minecraft)    |
+| IV   | Of Divers Curiosities  | Piet, Sim Tick, Sisyphus Quest        |
 
 ## Design Assets
 
-`design/` contains the spec (`design.md`) and 12 mockup variants (`design/mockups/mockup-a-*.html` through `mockup-l-*.html`). The chosen design is `mockup-l-glass.html` (glassmorphism). `design.md` documents which mockup adjustments were applied to `index.html`.
+`design/` contains the spec (`design.md`) and mockup variants in `design/mockups/`. `mockup-a` through `mockup-l` are the original layout explorations (the previous site was based on `mockup-l-glass.html`); `mockup-m` through `mockup-t` explore organizing projects into categories. The current site is based on `mockup-q-frontispiece.html`.

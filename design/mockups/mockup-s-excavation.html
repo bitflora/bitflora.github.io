@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup S — Excavation</title>
+  <!--
+    Concept: categories by ERA — the period each project digs into. Scroll
+    down through soil layers, from today's topsoil to classical bedrock.
+    Projects are finds in each layer, with museum accession tags.
+      Topsoil      · The Present            — Taco, Piet, Sim Tick, Zoogoer, AsteriskCraft
+      Clay         · The Scientific Revolution, 1600s — Kepler, Galileo
+      Limestone    · The Age of the Fathers, 100–750  — Patristics
+      Bedrock      · Classical Antiquity, BC          — Euclid, Sisyphus
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600;700&family=Courier+Prime&family=Fraunces:opsz,wght@9..144,300;9..144,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --tag: #F4EEDC; --ink: #23201a; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Archivo Narrow', system-ui, sans-serif; color: #f7f1e3; background: #1a1410; overflow-x: hidden; }
+
+    /* ── Sky & surface ── */
+    .sky {
+      min-height: 78vh; position: relative;
+      background: linear-gradient(#8fc3e8, #cfe6f2 70%, #e9efe3);
+      display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+      color: #1f2b33; padding: 40px 20px 90px;
+    }
+    .sky h1 { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(42px, 8vw, 92px); line-height: 0.95; letter-spacing: -0.02em; }
+    .sky p { font-size: 19px; margin-top: 14px; max-width: 520px; }
+    .sky .dig { margin-top: 28px; font-family: 'Courier Prime', monospace; font-size: 13px; letter-spacing: 0.1em; color: #1f2b33; text-decoration: none; border: 1px solid #1f2b3355; padding: 8px 14px; border-radius: 99px; }
+    .sky .dig:hover { background: #fff6; }
+    .tree { position: absolute; bottom: 0; right: 9%; width: 120px; }
+    .shovel { position: absolute; bottom: -6px; left: 12%; width: 60px; transform: rotate(-18deg); }
+    .grass {
+      height: 26px;
+      background:
+        repeating-linear-gradient(90deg, #4d8a2c 0 6px, #5c9c35 6px 10px, #457a27 10px 15px);
+      clip-path: polygon(0 40%, 3% 0, 6% 45%, 9% 10%, 12% 50%, 15% 5%, 18% 40%, 21% 0, 24% 45%, 27% 10%, 30% 40%, 33% 0, 36% 50%, 39% 10%, 42% 45%, 45% 0, 48% 40%, 51% 10%, 54% 50%, 57% 5%, 60% 40%, 63% 0, 66% 45%, 69% 10%, 72% 50%, 75% 0, 78% 40%, 81% 10%, 84% 45%, 87% 0, 90% 50%, 93% 10%, 96% 40%, 100% 0, 100% 100%, 0 100%);
+      margin-top: -26px; position: relative; z-index: 1;
+    }
+
+    /* ── Strata ── */
+    .stratum { position: relative; padding: 70px 24px 90px; overflow: hidden; }
+    .stratum::after { /* wavy boundary into the next layer */
+      content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 40px;
+      background: var(--next);
+      -webkit-mask: radial-gradient(40px 22px at 40px 0, transparent 98%, #000) 0 0/80px 40px repeat-x;
+              mask: radial-gradient(40px 22px at 40px 0, transparent 98%, #000) 0 0/80px 40px repeat-x;
+    }
+    .s-top  { --next: #8a4b2a; background:
+      radial-gradient(circle at 20% 30%, #0000 0 2px, transparent 3px) 0 0/34px 34px,
+      radial-gradient(#6b4a30 1.5px, transparent 2px) 0 0/22px 19px,
+      radial-gradient(#2b1d12 1px, transparent 1.5px) 7px 9px/17px 23px,
+      #3e2a1b; }
+    .s-clay { --next: #c9bc9e; background:
+      repeating-linear-gradient(176deg, #0000 0 26px, #ffffff0d 26px 30px),
+      radial-gradient(#a6603a 1.5px, transparent 2px) 0 0/26px 21px,
+      #8a4b2a; }
+    .s-lime { --next: #2a2a33; color: var(--ink); background:
+      radial-gradient(ellipse 14px 8px, #b3a684 40%, transparent 45%) 30px 40px/180px 140px,
+      radial-gradient(#a99c7c 1.5px, transparent 2px) 0 0/19px 24px,
+      repeating-linear-gradient(0deg, #0000 0 60px, #0000000f 60px 62px),
+      #c9bc9e; }
+    .s-bed  { --next: #111; background:
+      conic-gradient(from 30deg at 30% 40%, #33333f, #2a2a33, #3a3a46, #2a2a33) 0 0/140px 110px,
+      #2a2a33; }
+
+    .layer-head { max-width: 1000px; margin: 0 auto 36px; display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: baseline; }
+    .depth { font-family: 'Courier Prime', monospace; font-size: 13px; opacity: 0.75; border-top: 1px solid currentColor; padding-top: 4px; }
+    .layer-head h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(28px, 4vw, 44px); line-height: 1; }
+    .layer-head p { font-size: 16px; opacity: 0.8; margin-top: 6px; max-width: 560px; }
+
+    .finds { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 26px 30px; padding-left: 140px; }
+
+    /* Each find: an object half-buried + a museum tag tied to it */
+    .find {
+      position: relative; width: 250px;
+      text-decoration: none; color: var(--ink);
+      transform: rotate(var(--r, 0deg)) translateY(40px);
+      opacity: 0;
+      transition: transform 0.7s cubic-bezier(.2,1.2,.4,1), opacity 0.6s;
+    }
+    .find.unearthed { opacity: 1; transform: rotate(var(--r, 0deg)); }
+    .find .obj {
+      height: 110px; display: grid; place-items: center;
+      filter: drop-shadow(0 6px 4px #0007);
+    }
+    .find .obj img { max-height: 104px; max-width: 200px; border: 3px solid #f4eedc; box-shadow: 0 0 0 1px #0004; }
+    .find .tag {
+      position: relative; margin-top: 10px;
+      background: var(--tag);
+      padding: 12px 14px 12px 22px;
+      font-family: 'Courier Prime', monospace; font-size: 12px; line-height: 1.45;
+      clip-path: polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%);
+      box-shadow: 0 4px 10px #0005;
+      transition: transform 0.2s;
+    }
+    .find .tag::before { content: ''; position: absolute; left: 8px; top: 50%; width: 7px; height: 7px; border-radius: 50%; background: #0000; box-shadow: inset 0 0 0 1.5px #0007; transform: translateY(-50%); }
+    .find .tag b { font-family: 'Archivo Narrow'; font-size: 17px; display: block; }
+    .find .tag .acc { color: #8b5a2b; }
+    .find .tag .go { display: block; margin-top: 4px; color: #8b2e1a; }
+    .find:hover .tag { transform: translateX(4px); }
+    .find:hover .obj { animation: wiggle 0.4s; }
+    @keyframes wiggle { 30% { transform: rotate(-3deg); } 70% { transform: rotate(3deg); } }
+
+    .bedrock-end {
+      background: repeating-conic-gradient(#111 0 25%, #1b1b1f 0 50%) 0 0/36px 36px;
+      text-align: center; padding: 70px 20px 90px;
+      font-family: 'Courier Prime', monospace;
+    }
+    .bedrock-end h3 { font-family: 'Fraunces', serif; font-weight: 300; font-size: 32px; margin-bottom: 12px; }
+    .bedrock-end a { color: #f7f1e3; margin: 0 8px; }
+
+    /* Depth gauge */
+    .gauge {
+      position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 5;
+      display: flex; flex-direction: column; gap: 4px;
+      font-family: 'Courier Prime', monospace; font-size: 11px;
+      background: #000a; padding: 10px 12px; border-radius: 8px; backdrop-filter: blur(6px);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .gauge.on { opacity: 1; }
+    .gauge a { color: #f7f1e399; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .gauge a::before { content: ''; width: 10px; height: 10px; border-radius: 2px; background: var(--c); }
+    .gauge a.cur { color: #fff; }
+    .gauge a.cur::before { outline: 2px solid #fff; outline-offset: 1px; }
+
+    @media (max-width: 760px) {
+      .layer-head { grid-template-columns: 1fr; gap: 4px; }
+      .finds { padding-left: 0; justify-content: center; }
+      .gauge { right: 8px; font-size: 0; gap: 8px; padding: 8px; }
+      .tree { width: 80px; right: 4%; }
+    }
+    @media (prefers-reduced-motion: reduce) { .find { transition: none; } }
+  </style>
+</head>
+<body>
+
+  <header class="sky">
+    <h1>Tim Jasko</h1>
+    <p>I read old books and build new things. Most of what I build is dug up from somewhere older.</p>
+    <a class="dig" href="#present">↓ Start digging</a>
+    <!-- a small fruit tree, since he cultivates those too -->
+    <svg class="tree" viewBox="0 0 120 150" aria-hidden="true">
+      <rect x="54" y="80" width="12" height="70" fill="#6b4a30"/>
+      <circle cx="60" cy="60" r="44" fill="#4f8f3a"/><circle cx="34" cy="74" r="28" fill="#5c9c45"/><circle cx="86" cy="72" r="30" fill="#467f33"/>
+      <circle cx="44" cy="52" r="5" fill="#d9483b"/><circle cx="78" cy="44" r="5" fill="#d9483b"/><circle cx="70" cy="80" r="5" fill="#d9483b"/><circle cx="30" cy="80" r="5" fill="#d9483b"/>
+    </svg>
+    <svg class="shovel" viewBox="0 0 60 160" aria-hidden="true">
+      <rect x="27" y="0" width="6" height="110" fill="#8a6a44"/><rect x="18" y="0" width="24" height="8" rx="3" fill="#8a6a44"/>
+      <path d="M14 108 h32 v22 q-16 30 -32 0z" fill="#9aa3ab"/>
+    </svg>
+  </header>
+  <div class="grass"></div>
+
+  <section class="stratum s-top" id="present" data-label="Present" data-c="#3e2a1b">
+    <div class="layer-head">
+      <div class="depth">0.0 m<br>2020s</div>
+      <div><h2>Topsoil · The Present</h2><p>Freshly turned. Games, simulations, and things that run in a browser tab.</p></div>
+    </div>
+    <div class="finds" data-finds="present"></div>
+  </section>
+
+  <section class="stratum s-clay" id="revolution" data-label="1600s" data-c="#8a4b2a">
+    <div class="layer-head">
+      <div class="depth">−1.6 m<br>1600s</div>
+      <div><h2>The Scientific Revolution</h2><p>Two men who changed how we see the sky and the falling stone, and who are hard to read without help.</p></div>
+    </div>
+    <div class="finds" data-finds="revolution"></div>
+  </section>
+
+  <section class="stratum s-lime" id="fathers" data-label="100–750" data-c="#c9bc9e">
+    <div class="layer-head">
+      <div class="depth">−3.9 m<br>100–750 AD</div>
+      <div><h2>The Age of the Fathers</h2><p>Compressed sediment of letters, sermons, and commentaries, layered two thousand years deep.</p></div>
+    </div>
+    <div class="finds" data-finds="fathers"></div>
+  </section>
+
+  <section class="stratum s-bed" id="antiquity" data-label="BC" data-c="#2a2a33">
+    <div class="layer-head">
+      <div class="depth">−6.2 m<br>before Christ</div>
+      <div><h2>Classical Antiquity</h2><p>The oldest finds: a geometry that still holds up and a boulder that never stays up.</p></div>
+    </div>
+    <div class="finds" data-finds="antiquity"></div>
+  </section>
+
+  <footer class="bedrock-end">
+    <h3>You have reached bedrock.</h3>
+    <p>Nothing further to dig. You could get in touch:
+      <a href="https://github.com/bitflora" target="_blank">GitHub</a>
+      <a href="mailto:tim.jasko@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn</a></p>
+  </footer>
+
+  <nav class="gauge" id="gauge" aria-label="Depth"></nav>
+
+  <script>
+    const tacoSvg = '<svg width="110" height="90" viewBox="-55 -45 110 90"><circle r="12" fill="#f0c46a"/><ellipse rx="34" ry="14" fill="none" stroke="#f4eedc" stroke-dasharray="3 3"/><ellipse rx="50" ry="22" fill="none" stroke="#f4eedc" stroke-dasharray="3 3"/><circle cx="34" r="5" fill="#7ab0de"/><path d="M-46 12 a12 12 0 0 1 24 0z" fill="#e8b34a" stroke="#8a5a2a"/></svg>';
+    const tickSvg = '<svg width="90" height="90" viewBox="-10 -10 20 20"><g stroke="#f4eedc" stroke-width="0.8" stroke-linecap="round"><line x1="-2.5" y1="-3" x2="-7" y2="-5.5"/><line x1="-2.8" y1="-1" x2="-7.5" y2="-2"/><line x1="-2.8" y1="1" x2="-7.5" y2="2"/><line x1="-2.5" y1="3" x2="-7" y2="5.5"/><line x1="2.5" y1="-3" x2="7" y2="-5.5"/><line x1="2.8" y1="-1" x2="7.5" y2="-2"/><line x1="2.8" y1="1" x2="7.5" y2="2"/><line x1="2.5" y1="3" x2="7" y2="5.5"/></g><ellipse cy="1" rx="3.5" ry="4.5" fill="#5a3a1c" stroke="#f4eedc" stroke-width="0.4"/><circle cy="-3.5" r="1.6" fill="#3a2410"/></svg>';
+    const scrollSvg = '<svg width="150" height="100" viewBox="0 0 150 100"><rect x="18" y="14" width="114" height="72" fill="#efe2bf" stroke="#6b5638"/><rect x="6" y="8" width="14" height="84" rx="7" fill="#b88a50" stroke="#6b5638"/><rect x="130" y="8" width="14" height="84" rx="7" fill="#b88a50" stroke="#6b5638"/><g stroke="#6b5638" stroke-width="2"><line x1="30" y1="30" x2="118" y2="30"/><line x1="30" y1="42" x2="110" y2="42"/><line x1="30" y1="54" x2="118" y2="54"/><line x1="30" y1="66" x2="96" y2="66"/></g><text x="30" y="27" font-size="10" fill="#9b2a17" font-family="serif">✠</text></svg>';
+    const euclidSvg = '<svg width="120" height="100" viewBox="0 0 120 100"><rect x="2" y="2" width="116" height="96" fill="#6e6a60" stroke="#3a3833" stroke-width="3"/><g fill="none" stroke="#e8e2d0" stroke-width="1.6"><circle cx="45" cy="60" r="28"/><circle cx="75" cy="60" r="28"/><path d="M45 60 L75 60 L60 34Z"/></g><g fill="#e8e2d0"><circle cx="45" cy="60" r="2.5"/><circle cx="75" cy="60" r="2.5"/><circle cx="60" cy="34" r="2.5"/></g><text x="10" y="18" font-size="10" fill="#e8e2d0" font-family="serif">Α·</text></svg>';
+
+    const finds = {
+      present: [
+        { acc: 'TJ.2026.01', name: 'Solar Taco Tuesday', art: tacoSvg, note: 'Orbital calendar, nine planets. Still running.', href: '../../taco-tuesday/index.html', go: 'Open the orrery' },
+        { acc: 'TJ.2026.02', name: 'Zoogoer', img: '../../images/zoogoer.png', note: 'Minecraft mod. Villagers who visit your zoo.', href: 'https://www.curseforge.com/minecraft/mc-mods/zoogoer', go: 'CurseForge' },
+        { acc: 'TJ.2026.03', name: 'AsteriskCraft', img: '../../images/asteriskcraft.png', note: 'Minecraft mod. StarCraft’s three races, in blocks.', href: 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft', go: 'CurseForge' },
+        { acc: 'TJ.2026.04', name: 'Mandelbrot in Piet', img: '../../images/mandelbrot.jpg', note: 'A painting that computes. LLMs as yak-shavers.', href: 'https://github.com/bitflora/piet#llms-as-yak-shavers', go: 'Retrospective' },
+        { acc: 'TJ.2026.05', name: 'Sim Tick', art: tickSvg, note: 'Tick lifecycle model. Aim: end Lyme disease.', href: 'https://sim-tick.vercel.app/', go: 'Visit site' },
+      ],
+      revolution: [
+        { acc: 'TJ.1619.01', name: 'Kepler’s Harmony of the World', img: '../../images/kepler.jpg', note: 'Harmonices Mundi, 1619. Planetary music, made audible.', href: 'https://kepler-harmonies.vercel.app/', go: 'Hear it now' },
+        { acc: 'TJ.1638.01', name: 'Galileo’s Two New Sciences', art: '<svg width="120" height="100" viewBox="0 0 120 100"><path d="M10 90 L110 90 L110 20Z" fill="#c78a4a" stroke="#f4eedc"/><circle cx="42" cy="73" r="8" fill="#f4eedc"/><g stroke="#f4eedc" stroke-dasharray="2 3"><line x1="20" y1="10" x2="20" y2="88"/></g><circle cx="20" cy="18" r="4" fill="#f4eedc"/><circle cx="20" cy="40" r="4" fill="#f4eedc" opacity="0.6"/><circle cx="20" cy="74" r="4" fill="#f4eedc" opacity="0.3"/></svg>', note: '1638. Motion and materials, with modern notation added.', href: 'https://galileo-two-new-sciences.vercel.app/', go: 'Read the text' },
+      ],
+      fathers: [
+        { acc: 'TJ.0100.01', name: 'Patristics', art: scrollSvg, note: '400 texts. 800,000 cross-references, AI-extracted.', href: 'https://patristics-site.vercel.app/', go: 'Visit site' },
+      ],
+      antiquity: [
+        { acc: 'TJ.-300.01', name: 'Euclid Companion', art: euclidSvg, note: 'Elements, Book I, Prop. 1 onward. Explanations on demand.', href: 'https://euclids-elements-lektor.vercel.app/', go: 'Read the text' },
+        { acc: 'TJ.-700.01', name: 'Sisyphus Quest', img: '../../images/sisyphus-quest.gif', note: 'Push right. Reach the top. Allegedly possible.', href: '/sisyphus-quest/', go: 'Play now' },
+      ],
+    };
+
+    Object.entries(finds).forEach(([layer, list]) => {
+      const box = document.querySelector(`[data-finds="${layer}"]`);
+      list.forEach((f, i) => {
+        const a = document.createElement('a');
+        a.className = 'find';
+        a.href = f.href; a.target = '_blank';
+        a.style.setProperty('--r', `${((i * 37) % 7) - 3}deg`);
+        a.style.transitionDelay = `${i * 90}ms`;
+        a.innerHTML = `<div class="obj">${f.img ? `<img src="${f.img}" alt="">` : f.art}</div>
+          <div class="tag"><span class="acc">${f.acc}</span><b>${f.name}</b>${f.note}<span class="go">→ ${f.go}</span></div>`;
+        box.appendChild(a);
+      });
+    });
+
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('unearthed'); io.unobserve(e.target); }
+    }), { threshold: 0.25 });
+    document.querySelectorAll('.find').forEach(f => io.observe(f));
+
+    // Depth gauge
+    const gauge = document.getElementById('gauge');
+    const strata = [...document.querySelectorAll('.stratum')];
+    strata.forEach(s => {
+      const a = document.createElement('a');
+      a.href = '#' + s.id; a.textContent = s.dataset.label;
+      a.style.setProperty('--c', s.dataset.c);
+      gauge.appendChild(a);
+    });
+    const marks = [...gauge.children];
+    addEventListener('scroll', () => {
+      const mid = innerHeight * 0.45;
+      let cur = -1;
+      strata.forEach((s, i) => { if (s.getBoundingClientRect().top < mid) cur = i; });
+      gauge.classList.toggle('on', cur >= 0);
+      marks.forEach((m, i) => m.classList.toggle('cur', i === cur));
+    }, { passive: true });
+  </script>
+</body>
+</html>

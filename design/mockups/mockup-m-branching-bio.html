@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup M — Branching Bio</title>
+  <!--
+    Concept: the bio sentence IS the navigation. Three phrases in it are
+    seeds; click one and a branch grows out of the words toward that
+    category's projects, which hang off the branch like fruit.
+    "I read old books and build new things — some one block at a time.
+     I cultivate software but also fruit trees."
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass-bg:     rgba(8, 10, 20, 0.62);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --text:         #F4F2EE;
+      --muted:        rgba(244, 242, 238, 0.68);
+      --blur:         blur(22px) saturate(1.5);
+      --c-books:      #D9B36C;
+      --c-mine:       #7FD15B;
+      --c-misc:       #7EC8E3;
+    }
+
+    html, body { height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; color: var(--text); background: #05060c; }
+
+    .bg { position: fixed; inset: 0; z-index: 0; }
+    .bg iframe { width: 100%; height: 100%; border: none; display: block; filter: brightness(0.55) saturate(0.8); }
+
+    svg#branches { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
+    .branch { fill: none; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(0,0,0,0.6)); }
+    .twig   { fill: none; stroke-linecap: round; opacity: 0.85; }
+    .leaf   { transform-box: fill-box; transform-origin: 0% 50%; transform: scale(0); transition: transform 0.5s cubic-bezier(.3,1.6,.5,1); }
+    .leaf.on { transform: scale(1); }
+
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    /* ── The seed card ── */
+    .identity {
+      position: fixed; z-index: 3;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(520px, calc(100vw - 32px));
+      padding: 30px 34px 26px;
+      border-radius: 22px;
+      text-align: center;
+    }
+    .eyebrow { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+    .name { font-family: Georgia, 'Times New Roman', serif; font-size: 40px; font-weight: 400; margin: 6px 0 16px; letter-spacing: 0.01em; }
+    .bio { font-family: Georgia, serif; font-size: 19px; line-height: 1.75; color: rgba(244,242,238,0.88); }
+
+    .seed {
+      position: relative;
+      cursor: pointer;
+      white-space: nowrap;
+      padding: 1px 4px; margin: 0 -2px;
+      border-radius: 5px;
+      color: var(--c);
+      background: linear-gradient(to top, color-mix(in srgb, var(--c) 22%, transparent) 0 35%, transparent 35%);
+      transition: background 0.25s, color 0.25s;
+      border: none; font: inherit;
+    }
+    .seed::after {
+      content: '';
+      position: absolute; right: -9px; top: 50%;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--c);
+      box-shadow: 0 0 0 0 var(--c);
+      transform: translateY(-50%);
+      animation: pulse 2.2s infinite;
+    }
+    .seed[aria-expanded="true"] { background: color-mix(in srgb, var(--c) 26%, transparent); }
+    .seed[aria-expanded="true"]::after { animation: none; opacity: 0; }
+    .seed:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 70%, transparent); }
+      70%  { box-shadow: 0 0 0 8px transparent; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+    .seed.books { --c: var(--c-books); }
+    .seed.mine  { --c: var(--c-mine); }
+    .seed.misc  { --c: var(--c-misc); }
+
+    .hint { margin-top: 18px; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+    .hint button { background: none; border: none; color: var(--text); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .links { margin-top: 14px; display: flex; justify-content: center; gap: 16px; }
+    .links a { font-size: 11px; color: var(--muted); text-decoration: none; }
+    .links a:hover { color: var(--text); }
+
+    /* ── Fruit (project nodes) ── */
+    .fruit {
+      position: fixed; z-index: 4;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      transition: transform 0.45s cubic-bezier(.3,1.5,.5,1), opacity 0.3s;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 15px 9px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--text); text-decoration: none;
+      font-size: 13px; white-space: nowrap;
+    }
+    .fruit.on { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    @media (prefers-reduced-motion: reduce) { .fruit, .leaf { transition: none; } .seed::after { animation: none; } }
+    .fruit .dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff8 0 12%, var(--pc) 40%, color-mix(in srgb, var(--pc) 55%, #000) 100%);
+      box-shadow: 0 0 14px color-mix(in srgb, var(--pc) 60%, transparent);
+      flex: none;
+    }
+    .fruit:hover, .fruit:focus-visible { border-color: var(--pc); outline: none; }
+    .fruit:hover .dot { transform: scale(1.12); }
+    .fruit .dot { transition: transform 0.2s; }
+
+    /* ── Detail panel ── */
+    .detail {
+      position: fixed; z-index: 5;
+      left: 50%; bottom: 22px;
+      transform: translate(-50%, 20px);
+      width: min(560px, calc(100vw - 32px));
+      padding: 18px 22px;
+      border-radius: 16px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      border-top: 2px solid var(--pc, #fff);
+    }
+    .detail.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .d-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--pc); }
+    .d-title { font-family: Georgia, serif; font-size: 22px; margin: 4px 0 2px; }
+    .d-sub { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .d-desc { font-size: 13px; line-height: 1.6; color: rgba(244,242,238,0.85); }
+    .d-cta { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--pc); text-decoration: none; }
+
+    @media (max-width: 720px) {
+      .identity { top: 22px; transform: translate(-50%, 0); padding: 22px 20px; }
+      .name { font-size: 30px; }
+      .bio { font-size: 16px; }
+      .fruit { font-size: 11px; padding: 6px 11px 6px 7px; }
+      .fruit .dot { width: 16px; height: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg"><iframe src="../../taco-tuesday/index.html" title="Solar Taco Tuesday" scrolling="no"></iframe></div>
+
+  <svg id="branches" aria-hidden="true"></svg>
+
+  <section class="glass identity" id="identity">
+    <div class="eyebrow">Portfolio</div>
+    <h1 class="name">Tim Jasko</h1>
+    <p class="bio">
+      I read <button class="seed books" data-cat="books" aria-expanded="false">old books</button>
+      and build <button class="seed misc" data-cat="misc" aria-expanded="false">new things</button>
+      — some of them <button class="seed mine" data-cat="mine" aria-expanded="false">one block at a time</button>.
+      I cultivate software but also fruit trees.
+    </p>
+    <div class="hint">Pick a phrase to see what grew from it — or <button id="grow-all">grow everything</button>.</div>
+    <div class="links">
+      <a href="https://github.com/bitflora" target="_blank">GitHub ↗</a>
+      <a href="mailto:tim.jasko@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/timothy-jasko-4536816/" target="_blank">LinkedIn ↗</a>
+    </div>
+  </section>
+
+  <div id="fruits"></div>
+
+  <aside class="glass detail" id="detail" aria-live="polite">
+    <div class="d-eyebrow" id="d-eyebrow"></div>
+    <div class="d-title" id="d-title"></div>
+    <div class="d-sub" id="d-sub"></div>
+    <p class="d-desc" id="d-desc"></p>
+    <a class="d-cta" id="d-cta" target="_blank"></a>
+  </aside>
+
+  <script>
+    const categories = {
+      books: { label: 'Old Books',     color: '#D9B36C', angle: -100, spread: 110 },
+      mine:  { label: 'Minecraft',     color: '#7FD15B', angle: 155,  spread: 50 },
+      misc:  { label: 'Miscellaneous', color: '#7EC8E3', angle: 40,   spread: 80 },
+    };
+
+    const projects = [
+      { key: 'pat', cat: 'books', title: 'Patristics',              color: '#9B8FFF', eyebrow: 'AI Pipeline',        sub: '400 Texts · 800,000 cross-references', desc: 'A three-stage AI pipeline that ingests, processes, and semantically indexes writings from the early Church Fathers.', cta: ['Visit site', 'https://patristics-site.vercel.app/'] },
+      { key: 'gal', cat: 'books', title: 'Galileo’s Two New Sciences', color: '#FFA050', eyebrow: 'AI · Historical Text', sub: '1638 Original · LLM-assisted learning', desc: 'Inline modern notation, figures, and commentary on Galileo’s final, famously difficult book.', cta: ['Read the text', 'https://galileo-two-new-sciences.vercel.app/'] },
+      { key: 'euc', cat: 'books', title: 'Euclid Companion',        color: '#4FD1C5', eyebrow: 'AI · Historical Text', sub: 'Elements · Heath Translation', desc: 'A reading companion for Euclid’s Elements, with explanations on demand for each proposition.', cta: ['Read the text', 'https://euclids-elements-lektor.vercel.app/'] },
+      { key: 'kep', cat: 'books', title: 'Kepler’s Harmony of the World', color: '#E8D87E', eyebrow: 'Astronomy · Music', sub: '1619 · Harmonices Mundi', desc: 'Kepler described the planets as making music. Now we can hear what that would have sounded like.', cta: ['Hear it now', 'https://kepler-harmonies.vercel.app/'] },
+      { key: 'zoo', cat: 'mine',  title: 'Zoogoer',                 color: '#56C56E', eyebrow: 'Minecraft Mod',       sub: 'Java', desc: 'New villagers who admire the creatures you’ve collected and reward you for a well-built zoo.', cta: ['View on CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
+      { key: 'ast', cat: 'mine',  title: 'AsteriskCraft',           color: '#A8D94E', eyebrow: 'Minecraft Mod',       sub: 'Java · StarCraft × Minecraft', desc: 'Terran, Protoss, and Zerg rebuilt as blocks, mobs, and resources — survival played as an RTS match.', cta: ['View on CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
+      { key: 'taco', cat: 'misc', title: 'Solar Taco Tuesday',      color: '#D4AE60', eyebrow: 'Live · Background',   sub: 'Astronomy · Interactive', desc: 'Every Tuesday, somewhere in the solar system, it’s Taco Tuesday. (It’s running behind this page right now.)', cta: null },
+      { key: 'pie', cat: 'misc',  title: 'Mandelbrot in Piet',      color: '#7EC8E3', eyebrow: 'Esoteric Language',   sub: 'Piet · Rust · Python', desc: 'A program that is also an abstract painting — and a retrospective on LLMs as yak-shavers.', cta: ['Read the retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
+      { key: 'sim', cat: 'misc',  title: 'Sim Tick',                color: '#E54B4B', eyebrow: 'Science · Simulation', sub: 'TypeScript', desc: 'A tick lifecycle simulator built from current research, aimed at finding efficient ways to stamp out Lyme disease.', cta: ['Visit site', 'https://sim-tick.vercel.app/'] },
+      { key: 'sis', cat: 'misc',  title: 'Sisyphus Quest',          color: '#E0E0E0', eyebrow: 'Pixel Art · Browser Game', sub: 'Vue · TypeScript', desc: 'Move right to push the boulder up the hill. If you reach the top, you win!', cta: ['Play now', '/sisyphus-quest/'] },
+    ];
+
+    const svg      = document.getElementById('branches');
+    const fruitsEl = document.getElementById('fruits');
+    const identity = document.getElementById('identity');
+    const open     = new Set();
+    const NS = 'http://www.w3.org/2000/svg';
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Deterministic wobble so branches don't jitter on resize
+    function rng(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+
+    projects.forEach(p => {
+      const a = document.createElement('a');
+      a.className = 'glass fruit';
+      a.style.setProperty('--pc', p.color);
+      a.href = p.cta ? p.cta[1] : '#';
+      if (p.cta) a.target = '_blank';
+      a.innerHTML = `<span class="dot"></span>${p.title}`;
+      a.addEventListener('mouseenter', () => showDetail(p));
+      a.addEventListener('focus', () => showDetail(p));
+      fruitsEl.appendChild(a);
+      p.el = a;
+    });
+
+    function seedPoint(cat) {
+      const r = document.querySelector(`.seed[data-cat="${cat}"]`).getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2, r };
+    }
+
+    function layout() {
+      const W = innerWidth, H = innerHeight;
+      const card = identity.getBoundingClientRect();
+      const cx = card.left + card.width / 2, cy = card.top + card.height / 2;
+      const mobile = W < 720;
+      const targets = {};
+      Object.entries(categories).forEach(([cat, c]) => {
+        const list = projects.filter(p => p.cat === cat);
+        list.forEach((p, i) => {
+          let x, y;
+          if (mobile) {
+            // one zig-zag vine beneath the card, grouped by category
+            const idx = projects.indexOf(p);
+            const catIdx = ['books', 'mine', 'misc'].indexOf(cat);
+            x = W * (idx % 2 ? 0.67 : 0.33);
+            y = card.bottom + 36 + (idx + catIdx * 0.6) * 40;
+          } else {
+            const t = list.length === 1 ? 0.5 : i / (list.length - 1);
+            const ang = (c.angle - c.spread / 2 + c.spread * t) * Math.PI / 180;
+            const rx = Math.min(W * 0.42, card.width * 0.5 + 230);
+            const ry = Math.min(H * 0.40, card.height * 0.5 + 120);
+            x = cx + Math.cos(ang) * rx;
+            y = cy + Math.sin(ang) * ry;
+          }
+          targets[p.key] = { x: Math.max(110, Math.min(W - 110, x)), y: Math.max(40, Math.min(H - 40, y)) };
+        });
+      });
+      return targets;
+    }
+
+    function drawBranch(cat, animate) {
+      const c = categories[cat];
+      const s = seedPoint(cat);
+      const targets = layout();
+      const g = document.createElementNS(NS, 'g');
+      g.dataset.cat = cat;
+      svg.appendChild(g);
+      const rand = rng(cat.charCodeAt(0) * 97 + 13);
+
+      // trunk: from the phrase out to the edge of the card
+      const card = identity.getBoundingClientRect();
+      const list = projects.filter(p => p.cat === cat);
+      const avg = list.reduce((a, p) => ({ x: a.x + targets[p.key].x / list.length, y: a.y + targets[p.key].y / list.length }), { x: 0, y: 0 });
+      // fork just outside the card, on the ray from its centre toward this category's fruit
+      const ccx = card.left + card.width / 2, ccy = card.top + card.height / 2;
+      const dx = avg.x - ccx, dy = avg.y - ccy;
+      const k = Math.min((card.width / 2 + 34) / Math.abs(dx || 1e-6), (card.height / 2 + 34) / Math.abs(dy || 1e-6));
+      const fork = { x: ccx + dx * k, y: ccy + dy * k };
+
+      const paths = [];
+      const trunk = `M${s.x},${s.y + s.r.height / 2} C${s.x},${s.y + 40} ${fork.x + (rand() - 0.5) * 80},${fork.y + (rand() - 0.5) * 80} ${fork.x},${fork.y}`;
+      paths.push({ d: trunk, w: 4.5, delay: 0, cls: 'branch' });
+
+      list.forEach((p, i) => {
+        const t = targets[p.key];
+        const mx = (fork.x + t.x) / 2 + (rand() - 0.5) * 70;
+        const my = (fork.y + t.y) / 2 + (rand() - 0.5) * 70;
+        paths.push({ d: `M${fork.x},${fork.y} Q${mx},${my} ${t.x},${t.y}`, w: 2.6, delay: 450 + i * 120, cls: 'branch', fruit: p, mid: { x: mx, y: my } });
+        // a little twig with a leaf
+        const tx = mx + (rand() - 0.5) * 60, ty = my + (rand() - 0.5) * 60;
+        paths.push({ d: `M${(fork.x + mx) / 2 + (mx - fork.x) * 0.3},${(fork.y + my) / 2 + (my - fork.y) * 0.3} L${tx},${ty}`, w: 1.3, delay: 700 + i * 120, cls: 'twig', leaf: { x: tx, y: ty, rot: Math.atan2(ty - my, tx - mx) * 180 / Math.PI } });
+      });
+
+      paths.forEach(pp => {
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', pp.d);
+        path.setAttribute('class', pp.cls);
+        path.setAttribute('stroke', c.color);
+        path.setAttribute('stroke-width', pp.w);
+        g.appendChild(path);
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = len;
+        if (animate) {
+          path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+                       { duration: 600, delay: pp.delay, easing: 'ease-out', fill: 'backwards' });
+        }
+        if (pp.leaf) {
+          const leaf = document.createElementNS(NS, 'path');
+          leaf.setAttribute('d', 'M0,0 C6,-7 16,-6 20,0 C16,6 6,7 0,0Z');
+          leaf.setAttribute('fill', c.color);
+          leaf.setAttribute('opacity', '0.8');
+          leaf.setAttribute('class', 'leaf');
+          const wrap = document.createElementNS(NS, 'g');
+          wrap.setAttribute('transform', `translate(${pp.leaf.x},${pp.leaf.y}) rotate(${pp.leaf.rot})`);
+          wrap.appendChild(leaf);
+          g.appendChild(wrap);
+          setTimeout(() => leaf.classList.add('on'), animate ? pp.delay + 500 : 0);
+        }
+        if (pp.fruit) {
+          const t = targets[pp.fruit.key];
+          pp.fruit.el.style.left = t.x + 'px';
+          pp.fruit.el.style.top = t.y + 'px';
+          setTimeout(() => pp.fruit.el.classList.add('on'), animate ? pp.delay + 450 : 0);
+        }
+      });
+    }
+
+    function prune(cat) {
+      svg.querySelector(`g[data-cat="${cat}"]`)?.remove();
+      projects.filter(p => p.cat === cat).forEach(p => p.el.classList.remove('on'));
+    }
+
+    function toggle(cat, force) {
+      const want = force ?? !open.has(cat);
+      const btn = document.querySelector(`.seed[data-cat="${cat}"]`);
+      if (want === open.has(cat)) return;
+      btn.setAttribute('aria-expanded', want);
+      if (want) { open.add(cat); drawBranch(cat, !calm); }
+      else { open.delete(cat); prune(cat); }
+    }
+
+    document.querySelectorAll('.seed').forEach(b => b.addEventListener('click', () => toggle(b.dataset.cat)));
+    document.getElementById('grow-all').addEventListener('click', () => {
+      ['books', 'misc', 'mine'].forEach((c, i) => setTimeout(() => toggle(c, true), i * 350));
+    });
+
+    addEventListener('resize', () => {
+      svg.innerHTML = '';
+      open.forEach(cat => drawBranch(cat, false));
+    });
+
+    const detail = document.getElementById('detail');
+    function showDetail(p) {
+      detail.style.setProperty('--pc', p.color);
+      document.getElementById('d-eyebrow').textContent = `${categories[p.cat].label} · ${p.eyebrow}`;
+      document.getElementById('d-title').textContent = p.title;
+      document.getElementById('d-sub').textContent = p.sub;
+      document.getElementById('d-desc').textContent = p.desc;
+      const cta = document.getElementById('d-cta');
+      cta.style.display = p.cta ? '' : 'none';
+      if (p.cta) { cta.textContent = p.cta[0] + ' →'; cta.href = p.cta[1]; }
+      detail.classList.add('on');
+    }
+
+    // Grow everything once on load so the idea is obvious; phrases then toggle
+    setTimeout(() => document.getElementById('grow-all').click(), 900);
+  </script>
+</body>
+</html>
