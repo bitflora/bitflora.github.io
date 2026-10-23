@@ -45,7 +45,7 @@ All projects live in the `books` array in the `<script>` block. Each book has `n
 |------|------------------------|---------------------------------------|
 | I    | Of Old Books           | Patristics, Galileo, Euclid           |
 | II   | Of the Heavens         | Kepler, Solar Taco Tuesday            |
-| III  | Of Blocks              | Zoogoer, AsteriskCraft (Minecraft)    |
+| III  | Of Blocks              | Zoogoer, Ultimate Zookeeper, AsteriskCraft (Minecraft) |
 | IV   | Of Divers Curiosities  | Piet, Sim Tick, Sisyphus Quest        |
 
 ## Design Assets
