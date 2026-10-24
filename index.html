@@ -57,7 +57,10 @@
     .tp .of { font-style: italic; font-size: 15px; }
     .tp .author { font-family: 'IM Fell English SC', serif; font-size: 22px; letter-spacing: 0.12em; margin: 2px 0; }
     .tp .desc { font-style: italic; font-size: 14px; color: var(--faded); max-width: 360px; margin: 6px auto 0; line-height: 1.35; }
-    .rule { height: 0; border-top: 1px solid var(--ink); border-bottom: 3px double var(--ink); margin: 12px auto; width: 70%; padding-top: 3px; }
+    .tp .tongues { font-size: 12.5px; line-height: 1.35; max-width: 380px; margin: 8px auto 0; }
+    .tp .tongues dt { font-family: 'IM Fell English SC', serif; letter-spacing: 0.1em; color: var(--rubric); margin-top: 4px; }
+    .tp .tongues dd { font-size: 14px; color: var(--ink); }
+    .rule { height: 0; border-bottom: 3px double var(--ink); margin: 12px auto; width: 70%; padding-top: 3px; }
 
     .toc { margin-top: 4px; font-size: 15px; }
     .toc .bk { font-family: 'IM Fell English SC', serif; letter-spacing: 0.08em; color: var(--rubric); margin: 8px 0 1px; font-size: 15px; }
@@ -173,7 +176,7 @@
     /* left half: keypad */
     body[data-theme="tricorder"] .page.left { background: linear-gradient(#1d1f23, #141518); box-shadow: inset 0 0 0 1px #0008, inset 0 2px 8px #0009; text-align: left; }
     body[data-theme="tricorder"] .tp > .the, body[data-theme="tricorder"] .tp > .of,
-    body[data-theme="tricorder"] .tp > .desc, body[data-theme="tricorder"] .tp > .rule,
+    body[data-theme="tricorder"] .tp > .desc, body[data-theme="tricorder"] .tp > .rule, body[data-theme="tricorder"] .tp > .tongues,
     body[data-theme="tricorder"] .tp > h1 { display: none; }
     body[data-theme="tricorder"] .tp > .author { font-family: 'Antonio', sans-serif; font-size: 13px; letter-spacing: 0.3em; color: #9aa0a8; text-transform: uppercase; }
     body[data-theme="tricorder"] .device-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -296,7 +299,7 @@
     body[data-theme="blocks"] .tp > .the::before { content: 'Page 1 of 1'; display: block; text-align: right; font-size: 16px; margin-bottom: 14px; }
     body[data-theme="blocks"] .tp > .author { font-family: inherit; font-size: 16px; letter-spacing: 0; color: #555; margin: 0 0 2px; }
     body[data-theme="blocks"] .tp > .author::before { content: 'by '; }
-    body[data-theme="blocks"] .tp > .desc { display: none; }
+    body[data-theme="blocks"] .tp > .desc, body[data-theme="blocks"] .tp > .tongues { display: none; }
     body[data-theme="blocks"] .tp > h1 { margin-top: 10px; }
     body[data-theme="blocks"] .toc { font-size: 16px; margin-top: 4px; }
     body[data-theme="blocks"] .toc .bk { font-family: inherit; letter-spacing: 0; font-size: 16px; color: #000; margin: 10px 0 2px; }
@@ -374,14 +377,18 @@
       <div class="of">of</div>
       <div class="author">Tim Jasko</div>
       <p class="desc">I read old books &amp; build new things; I cultivate software, but also fruit trees.</p>
+      <dl class="tongues">
+        <dt>I have worked professionally with</dt>
+        <dd>C++&nbsp;· Python&nbsp;· AI / LLMs&nbsp;· TypeScript&nbsp;· JavaScript&nbsp;· Java&nbsp;· C#&nbsp;· React&nbsp;· Common Lisp&nbsp;· SQL</dd>
+        <dt>I have dabbled in</dt>
+        <dd>Rust&nbsp;· Go&nbsp;· Swift&nbsp;· Vue&nbsp;· Scheme&nbsp;· Piet</dd>
+      </dl>
       <div class="rule"></div>
       <div class="device-lcd" id="device-lcd" aria-hidden="true"></div>
 
       <nav class="toc" id="toc" aria-label="Contents"></nav>
 
       <div class="imprint">
-        Printed for the Author<br>
-        MMXXVI
       </div>
       <span class="folio">i</span>
     </section>
@@ -395,12 +402,15 @@
   <script>
     const books = [
       { n: 'I', title: 'Of Books', gloss: 'wherein ancient texts are made new', chapters: [
-        { slug: 'galileo', t: 'Two New Sciences', short: 'Galileo: Two New Sciences', sub: 'Being Galileo’s last book, Anno 1638, newly annotated',
+        { slug: 'galileo', t: 'Two New Sciences', short: 'Galileo: Two New Sciences', sub: 'Being Galileo’s last book, Anno 1638, newly annotated', img: 'images/galileo-cantilever.png',
         p: 'Galileo\'s final published work introduced the world to many important new areas of physics. However, it is difficult to read because he lacked the modern mathematical notation that we now take for granted. This showcases using AI to supplement education, by providing inline modern notation, figures, and commentary on a difficult historical text.',
         m: ['An experiment in AI as tutor.'], hand: 'I have discovered a truly marvelous proof that P=NP, which this margin is too narrow to contain.', cta: ['Read the Text', 'https://galileo-two-new-sciences.vercel.app/'] },
         { slug: 'euclid', t: 'Euclid\'s Elements', short: 'Euclid: Elements', sub: 'In Sir Thomas Heath’s translation, with a Companion',
         p: 'A reading companion for the foundational text of geometry. For each proposition an explanation is to be had on demand, so that the modern reader may follow the reasoning without losing the thread.',
         m: ['Q.E.D., but gentler.'], hand: '', cta: ['Read the Text', 'https://euclids-elements-lektor.vercel.app/'] },
+        { slug: 'tristram-shandy', t: 'The Life & Opinions of Tristram Shandy', short: 'Sterne: Tristram Shandy', sub: 'Being Laurence Sterne’s novel, Anno 1759, newly pointed', img: 'images/tristram-shandy.jpg',
+        p: 'Reworked punctuation to make this member of the Britannica Great Books a little more readable.',
+        m: ['Sterne loved em-dashes even more than LLMs.'], hand: '', cta: ['Read the Text', 'https://htmlpreview.github.io/?https://github.com/bitflora/classic-books/blob/main/tristram-original.html'] },
         { slug: 'patristics', t: 'Fathers of the Church', short: 'Patristics', sub: 'Four hundred texts, eight hundred thousand cross-references', img: 'images/bible-hyperlink.png',
           p: 'A three-stage AI pipeline that ingests, processes, and semantically indexes writings from the early Church Fathers. This application was built using a combination of Go, Python, SQLite and JavaScript. 400 texts from the past two thousand years were parsed and over 800,000 references were extracted then correlated. Finally these were built into a site that allows easy navigation, lookup, and visualizations of the data.',
           m: ['Go, Python, SQLite, and JavaScript.'], hand: 'Tolle, lege.', cta: ['Visit the Site', 'https://patristics-site.vercel.app/'] },
