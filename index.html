@@ -208,10 +208,10 @@
     body[data-theme="tricorder"] .toc a:hover { opacity: 0.85; }
     body[data-theme="tricorder"] .toc a[aria-current="true"] { opacity: 1; box-shadow: 0 0 12px var(--key), inset 0 -3px 0 #0005; }
     body[data-theme="tricorder"] .toc a[aria-current="true"]::before { content: none; }
-    .toc [data-book="I"]   { --key: #ff9966; }
-    .toc [data-book="II"]  { --key: #ffcc66; }
-    .toc [data-book="III"] { --key: #9999ff; }
-    .toc [data-book="IV"]  { --key: #cc99cc; }
+    .toc [data-book="III"] { --key: #ff9966; }
+    .toc [data-book="IV"]  { --key: #ffcc66; }
+    .toc [data-book="II"]  { --key: #9999ff; }
+    .toc [data-book="I"]   { --key: #cc99cc; }
     .toc [data-book="A"]   { --key: #66ccff; }
     body[data-theme="tricorder"] .imprint { margin-top: 12px; text-align: left; font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; color: #6f7680; }
     body[data-theme="tricorder"] .imprint a { color: #9aa0a8; }
@@ -401,7 +401,29 @@
 
   <script>
     const books = [
-      { n: 'I', title: 'Of Books', gloss: 'wherein ancient texts are made new', chapters: [
+      { n: 'I', title: 'Of Divers Curiosities', gloss: 'which resist all classification', chapters: [
+        { slug: 'piet', t: 'A Painting that Computes', short: 'Mandelbrot in Piet', sub: 'The Mandelbrot set, writ in colour', img: 'images/pretty.png', pixel: true,
+          p: 'Piet is an esoteric programming language where programs are abstract paintings and instructions are encoded as color transitions between blocks. In writing the displayed program, I explored the utility of LLMs in building tools that let a developer focus on the central task.',
+          m: ['Sort of a Quine.'], hand: 'On yak-shaving.', cta: ['Read the Retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
+        { slug: 'sim-tick', t: 'Of the Tick, & How to Be Rid of It', short: 'Sim Tick', sub: 'A simulation drawn from the latest research',
+          p: 'An accurate tick lifecycle simulator built from the latest scientific research. The goal: find efficient ways to exterminate Lyme disease by modeling tick populations under different intervention strategies.',
+          m: ['TypeScript.'], hand: 'Check your ankles.', cta: ['Visit the Site', 'https://sim-tick.vercel.app/'], ticks: 3 },
+        { slug: 'sisyphus', t: 'Of Sisyphus & His Stone', short: 'Sisyphus Quest', sub: 'A game in the manner of pixels', img: 'images/sisyphus-quest.gif',
+          p: 'A simple JavaScript game inspired by the myth of Sisyphus. Move Right to push the boulder up the hill. If you reach the top, you win!',
+          m: ['Vue & TypeScript.'], hand: 'One must imagine him happy.', cta: ['Play Now', 'sisyphus-quest/'] },
+      ] },
+      { n: 'II', title: 'Of Blocks', gloss: 'being modifications to the game Minecraft', theme: 'blocks', chapters: [
+        { slug: 'asteriskcraft', t: 'Of the Three Races of the Stars', short: 'AsteriskCraft', sub: 'StarCraft brought into the Overworld', img: 'images/asteriskcraft.png',
+          p: 'A Minecraft mod that brings StarCraft into the Overworld. The three races and their tech trees — Terran, Protoss, and Zerg — are rebuilt as blocks, mobs, and resources, so a survival world can be played as an RTS match.',
+          m: ['You must construct additional pylons.'], hand: 'GG', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
+        { slug: 'zoogoer', t: 'Of Zoos & Their Admirers', short: 'Zoogoer', sub: 'A modification, written in Java', img: 'images/zoogoer.png',
+          p: 'A Minecraft mod that adds new villagers who will admire the creatures you\'ve collected and reward you for a well-built zoo.',
+          m: ['Feed the animals.'], hand: '', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
+        { slug: 'ultimate-zookeeper', t: 'Of the Penultimate Zookeeper', short: 'The Ultimate Zookeeper', sub: 'A modpack, for Forge 1.20.1', img: 'images/ultimate-zookeeper.png',
+          p: 'A Minecraft challenge pack. Building from a small farm, the player collects ever more exotic beasts, up to the resurrection of dinosaurs from their fossils. A well-kept zoo draws Zoogoers, whose emeralds fund further research, and the animals themselves grant new abilities, all in service of bringing back the Ultimate Zookeeper.',
+          m: ['Rats as workers.', 'Dinosaurs from DNA.'], hand: 'Crikey!', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/modpacks/the-ultimate-zookeeper'] },
+      ] },
+      { n: 'III', title: 'Of Books', gloss: 'wherein ancient texts are made new', chapters: [
         { slug: 'galileo', t: 'Two New Sciences', short: 'Galileo: Two New Sciences', sub: 'Being Galileo’s last book, Anno 1638, newly annotated', img: 'images/galileo-cantilever.png',
         p: 'Galileo\'s final published work introduced the world to many important new areas of physics. However, it is difficult to read because he lacked the modern mathematical notation that we now take for granted. This showcases using AI to supplement education, by providing inline modern notation, figures, and commentary on a difficult historical text.',
         m: ['An experiment in AI as tutor.'], hand: 'I have discovered a truly marvelous proof that P=NP, which this margin is too narrow to contain.', cta: ['Read the Text', 'https://galileo-two-new-sciences.vercel.app/'] },
@@ -415,35 +437,13 @@
           p: 'A three-stage AI pipeline that ingests, processes, and semantically indexes writings from the early Church Fathers. This application was built using a combination of Go, Python, SQLite and JavaScript. 400 texts from the past two thousand years were parsed and over 800,000 references were extracted then correlated. Finally these were built into a site that allows easy navigation, lookup, and visualizations of the data.',
           m: ['Go, Python, SQLite, and JavaScript.'], hand: 'Tolle, lege.', cta: ['Visit the Site', 'https://patristics-site.vercel.app/'] },
       ] },
-      { n: 'II', title: 'Of the Heavens', gloss: 'encompassing space, music, and tacos', theme: 'tricorder', chapters: [
+      { n: 'IV', title: 'Of the Heavens', gloss: 'encompassing space, music, and tacos', theme: 'tricorder', chapters: [
         { slug: 'kepler', t: 'Of the Harmony of the World', short: 'Kepler\'s Music of the Spheres', sub: 'Harmonices Mundi, Anno 1619, made audible', img: 'images/kepler.jpg',
           p: 'In this critical work Johannes Kepler described the planets as making music, each singing according to its motion. Now, at last, we may hear what that would have sounded like.',
           m: ['Bring headphones.'], hand: 'Earth sings mi-fa-mi.', cta: ['Hear It Now', 'https://kepler-harmonies.vercel.app/'] },
         { slug: 'taco', t: 'Of Tacos upon the Planets', short: 'Solar Taco Tuesday', sub: 'An orrery for a weekly feast', live: 'taco-tuesday/index.html',
           p: 'Suppose you are an interstellar traveler. Suppose you are hungry. Wouldn’t it be handy to know where it is currently Taco Tuesday? Use this helpful tool!',
           m: ['Pluto is a planet here.'], hand: 'Disputed.', cta: ['Behold your solar system', 'taco-tuesday/index.html'] },
-      ] },
-      { n: 'III', title: 'Of Blocks', gloss: 'being modifications to the game Minecraft', theme: 'blocks', chapters: [
-        { slug: 'asteriskcraft', t: 'Of the Three Races of the Stars', short: 'AsteriskCraft', sub: 'StarCraft brought into the Overworld', img: 'images/asteriskcraft.png',
-          p: 'A Minecraft mod that brings StarCraft into the Overworld. The three races and their tech trees — Terran, Protoss, and Zerg — are rebuilt as blocks, mobs, and resources, so a survival world can be played as an RTS match.',
-          m: ['You must construct additional pylons.'], hand: 'GG', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/asteriskcraft'] },
-        { slug: 'zoogoer', t: 'Of Zoos & Their Admirers', short: 'Zoogoer', sub: 'A modification, written in Java', img: 'images/zoogoer.png',
-          p: 'A Minecraft mod that adds new villagers who will admire the creatures you\'ve collected and reward you for a well-built zoo.',
-          m: ['Feed the animals.'], hand: '', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/mc-mods/zoogoer'] },
-        { slug: 'ultimate-zookeeper', t: 'Of the Penultimate Zookeeper', short: 'The Ultimate Zookeeper', sub: 'A modpack, for Forge 1.20.1', img: 'images/ultimate-zookeeper.png',
-          p: 'A Minecraft challenge pack. Building from a small farm, the player collects ever more exotic beasts, up to the resurrection of dinosaurs from their fossils. A well-kept zoo draws Zoogoers, whose emeralds fund further research, and the animals themselves grant new abilities, all in service of bringing back the Ultimate Zookeeper.',
-          m: ['Rats as workers.', 'Dinosaurs from DNA.'], hand: 'Crikey!', cta: ['View at CurseForge', 'https://www.curseforge.com/minecraft/modpacks/the-ultimate-zookeeper'] },
-      ] },
-      { n: 'IV', title: 'Of Divers Curiosities', gloss: 'which resist all classification', chapters: [
-        { slug: 'piet', t: 'A Painting that Computes', short: 'Mandelbrot in Piet', sub: 'The Mandelbrot set, writ in colour', img: 'images/pretty.png', pixel: true,
-          p: 'Piet is an esoteric programming language where programs are abstract paintings and instructions are encoded as color transitions between blocks. In writing the displayed program, I explored the utility of LLMs in building tools that let a developer focus on the central task.',
-          m: ['Sort of a Quine.'], hand: 'On yak-shaving.', cta: ['Read the Retrospective', 'https://github.com/bitflora/piet#llms-as-yak-shavers'] },
-        { slug: 'sim-tick', t: 'Of the Tick, & How to Be Rid of It', short: 'Sim Tick', sub: 'A simulation drawn from the latest research',
-          p: 'An accurate tick lifecycle simulator built from the latest scientific research. The goal: find efficient ways to exterminate Lyme disease by modeling tick populations under different intervention strategies.',
-          m: ['TypeScript.'], hand: 'Check your ankles.', cta: ['Visit the Site', 'https://sim-tick.vercel.app/'], ticks: 3 },
-        { slug: 'sisyphus', t: 'Of Sisyphus & His Stone', short: 'Sisyphus Quest', sub: 'A game in the manner of pixels', img: 'images/sisyphus-quest.gif',
-          p: 'A simple JavaScript game inspired by the myth of Sisyphus. Move Right to push the boulder up the hill. If you reach the top, you win!',
-          m: ['Vue & TypeScript.'], hand: 'One must imagine him happy.', cta: ['Play Now', 'sisyphus-quest/'] },
       ] },
       { title: 'Of the Author', gloss: '& where he may be found', chapters: [
         { short: 'GitHub', href: 'https://github.com/bitflora' },

@@ -43,10 +43,10 @@ All projects live in the `books` array in the `<script>` block. Each book has `n
 
 | Book | Title                  | Chapters                              |
 |------|------------------------|---------------------------------------|
-| I    | Of Old Books           | Galileo, Euclid, Tristram Shandy, Patristics |
-| II   | Of the Heavens         | Kepler, Solar Taco Tuesday            |
-| III  | Of Blocks              | Zoogoer, Ultimate Zookeeper, AsteriskCraft (Minecraft) |
-| IV   | Of Divers Curiosities  | Piet, Sim Tick, Sisyphus Quest        |
+| I    | Of Divers Curiosities  | Piet, Sim Tick, Sisyphus Quest        |
+| II   | Of Blocks              | AsteriskCraft (Minecraft), Zoogoer, Ultimate Zookeeper |
+| III  | Of Books               | Galileo, Euclid, Tristram Shandy, Patristics |
+| IV   | Of the Heavens         | Kepler, Solar Taco Tuesday            |
 | —    | Of the Author          | GitHub, LinkedIn, By Post (external links) |
 
 ## Design Assets
