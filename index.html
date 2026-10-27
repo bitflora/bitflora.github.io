@@ -17,9 +17,16 @@
       --rubric: #9b2a17;
       --marginal: #3a5f8a;
     }
-    html, body { min-height: 100%; background: #1a120b; font-family: 'IM Fell English', Georgia, serif; color: var(--ink); }
+    html, body { min-height: 100%; font-family: 'IM Fell English', Georgia, serif; color: var(--ink); }
+    html { background: #1a120b; }
+    html::before { /* hazy backdrop behind the plain book; themes cover it with body::before/after */
+      content: ''; position: fixed; inset: -20px; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 40%, #3a271688, #120c07cc 85%),
+        url(images/background.png) center / cover;
+      filter: blur(2px) saturate(0.8);
+    }
     body {
-      background: radial-gradient(ellipse at 50% 40%, #3a2716, #120c07 75%);
       display: grid; place-items: center;
       padding: 32px 16px;
       min-height: 100vh;
